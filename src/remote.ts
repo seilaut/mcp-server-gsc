@@ -20,7 +20,8 @@ app.use('/mcp', async (c, next) => {
 app.use('/mcp', async (c, next) => {
   const token = c.env.MCP_API_TOKEN;
   if (token) {
-    return bearerAuth({ token })(c, next);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return bearerAuth({ token })(c as any, next);
   }
   await next();
 });
