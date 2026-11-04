@@ -2,6 +2,7 @@ import { google, searchconsole_v1, webmasters_v3 } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
 import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
 import { applyRegexFilter } from './request-body.js';
+import { resolveCredentialConfig } from './credentials.js';
 
 type SearchanalyticsQueryRequest =
   webmasters_v3.Params$Resource$Searchanalytics$Query['requestBody'];
@@ -15,24 +16,10 @@ export class SearchConsoleService {
   private auth: GoogleAuth;
 
   constructor(credentials: string) {
-    const isJsonString = credentials.trimStart().startsWith('{');
-    if (isJsonString) {
-      let parsed: Record<string, unknown>;
-      try {
-        parsed = JSON.parse(credentials);
-      } catch {
-        throw new Error('Invalid credentials: failed to parse JSON');
-      }
-      this.auth = new google.auth.GoogleAuth({
-        credentials: parsed,
-        scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
-      });
-    } else {
-      this.auth = new google.auth.GoogleAuth({
-        keyFile: credentials,
-        scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
-      });
-    }
+    this.auth = new google.auth.GoogleAuth({
+      ...resolveCredentialConfig(credentials),
+      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
+    });
   }
 
   private async getWebmasters() {
