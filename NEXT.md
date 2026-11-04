@@ -4,7 +4,7 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 58% · Δ -6 since 2026-11-04 · scope 85 tasks (+7) · hours 0.0 · cost $0.00 · plan @0e239aab
+Progress: 58% · Δ +0 since 2026-11-04 · scope 85 tasks (+0) · hours 0.0 · cost $0.00 · plan @0e239aab
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
@@ -18,7 +18,7 @@ On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on 
 
 ## Direction
 <!-- direction:begin -->
-State: forward · verified this session: — · reopened: none · flat sessions: 0 · ledger @31
+State: forward · verified this session: T1.1.3, T1.1.1, T1.2.1, T3.1.5, T3.1.3, T1.2.2, T1.3.1, T1.3.3, T1.3.2, T2.2.1, T2.2.2, T2.2.3, T4.1.1, T4.1.2, T4.1.3, T4.1.4, T4.2.4, T4.1.5 · reopened: none · flat sessions: 0 · ledger @31
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
@@ -77,7 +77,7 @@ On seilaut-master the controller ran from 16:20 to 20:00 CET. The repo was clone
 - Build: Sonnet implementers worked one task at a time, an Opus reviewer checked each task, and ticks came only from `progress.mjs --run-ac --only`.
 - The Stop hook (bin/on-stop.sh) also ticks a started task whose fast criterion passes at the end of a controller turn, so some ticks landed before their review finished. Every such task was reviewed afterwards.
 - The audit's "crash" from the jwa override was checked and is not a crash: jwa loads the module only when crypto.timingSafeEqual is missing.
-- One spawn-based handshake test flaked once under load (75 of 76 passing). Its 15-second child timeout is tight (8–9 s observed).
+- One spawn-based handshake test flaked once under load (75 of 76 passing): its 15-second child timeout was tight (8–9 s observed). It was raised to 45 s in 4379c1b (test/handshake.test.ts:13).
 
 ## History
 Older sessions → `HISTORY.md` (not auto-read). Entries are written by the SessionEnd hook; the agent fills Asked, Decided and Shipped.
