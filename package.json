@@ -15,6 +15,7 @@
     "build": "tsc && shx chmod +x dist/*.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
+    "test": "node --import tsx --test test/*.test.ts",
     "dev:remote": "wrangler dev src/remote.ts",
     "deploy": "wrangler deploy src/remote.ts"
   },
