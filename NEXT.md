@@ -4,20 +4,21 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 64% · Δ +23 since 2026-11-04 · scope 78 tasks (+0) · hours 0.0 · cost $0.00 · plan @bfa926c0
+Progress: 58% · Δ -6 since 2026-11-04 · scope 85 tasks (+7) · hours 0.0 · cost $0.00 · plan @0e239aab
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
 | I4 End product | 50 | 6/12 | in progress | E4.1, E4.2 |
+| I5 Review follow-ups 2026-11-04 | 0 | 0/7 | not started | E5.1 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
 
 ## Direction
 <!-- direction:begin -->
-State: forward · verified this session: T1.1.3, T1.1.1, T1.2.1, T3.1.5, T3.1.3, T1.2.2, T1.3.1, T1.3.3, T1.3.2, T2.2.1, T2.2.2, T2.2.3, T4.1.1, T4.1.2, T4.1.3, T4.1.4, T4.2.4, T4.1.5 · reopened: none · flat sessions: 0 · ledger @31
+State: forward · verified this session: — · reopened: none · flat sessions: 0 · ledger @31
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
