@@ -39,7 +39,14 @@ export class SearchConsoleService {
     } as searchconsole_v1.Options);
   }
 
-  private async handlePermissionError<T>(
+  /**
+   * Runs `operation`; on a permission error retries once against the fallback
+   * property. A fallback answer is labelled: `data` gains `requestedSiteUrl`,
+   * `answeredSiteUrl` and `note`, so the caller never reads another property's
+   * numbers as the requested one (audit F8). A primary success is returned as-is.
+   * If the fallback itself throws, the original permission error is its `cause`.
+   */
+  private async handlePermissionError<T extends { data?: unknown }>(
     siteUrl: string | null | undefined,
     operation: () => Promise<T>,
     fallbackOperation: (fallbackSiteUrl: string) => Promise<T>,
@@ -52,7 +59,30 @@ export class SearchConsoleService {
         if (candidate === undefined) {
           throw err;
         }
-        return await fallbackOperation(candidate);
+        let result: T;
+        try {
+          result = await fallbackOperation(candidate);
+        } catch (fallbackErr) {
+          if (fallbackErr instanceof Error && fallbackErr.cause === undefined) {
+            fallbackErr.cause = err;
+          }
+          throw fallbackErr;
+        }
+        const data =
+          typeof result.data === 'object' && result.data !== null && !Array.isArray(result.data)
+            ? result.data
+            : result.data === undefined || result.data === ''
+              ? {}
+              : { result: result.data };
+        return {
+          ...result,
+          data: {
+            ...data,
+            requestedSiteUrl: siteUrl,
+            answeredSiteUrl: candidate,
+            note: `Permission was refused for ${siteUrl}, so this answer comes from a different property: ${candidate}. Its numbers can cover more than the property you asked for (all subdomains and protocols).`,
+          },
+        };
       }
       throw err;
     }

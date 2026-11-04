@@ -14,6 +14,13 @@ import { z } from 'zod';
 import { SearchConsoleService } from './search-console.js';
 import { buildSearchAnalyticsBody } from './request-body.js';
 
+function pickFallbackFields(data: unknown) {
+  const d = (data ?? {}) as Record<string, unknown>;
+  return d.answeredSiteUrl === undefined
+    ? {}
+    : { requestedSiteUrl: d.requestedSiteUrl, answeredSiteUrl: d.answeredSiteUrl, note: d.note };
+}
+
 export function createServer(credentials: string): Server {
   if (!credentials) {
     throw new Error('credentials parameter is required');
@@ -163,7 +170,9 @@ export function createServer(credentials: string): Server {
                   quickWins: (enhancedResult.data as any).quickWins,
                   totalOpportunities: (enhancedResult.data as any).quickWins?.length || 0,
                   thresholds: quickWinsOptions.quickWinsThresholds,
-                  analysis: 'Quick wins detection completed'
+                  analysis: 'Quick wins detection completed',
+                  // Present only when the permission fallback answered (audit F8).
+                  ...pickFallbackFields(enhancedResult.data),
                 }, null, 2),
               },
             ],
