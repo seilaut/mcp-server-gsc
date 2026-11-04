@@ -37,8 +37,5 @@
     "tsx": "^4.23.15",
     "typescript": "^5.7.2",
     "wrangler": "^4.67.0"
-  },
-  "overrides": {
-    "buffer-equal-constant-time": "file:./patches/buffer-equal-constant-time"
   }
 }
