@@ -3,6 +3,7 @@ import { GoogleAuth } from 'google-auth-library';
 import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
 import { applyRegexFilter } from './request-body.js';
 import { resolveCredentialConfig } from './credentials.js';
+import { fallbackSiteUrls } from './site-url.js';
 
 type SearchanalyticsQueryRequest =
   webmasters_v3.Params$Resource$Searchanalytics$Query['requestBody'];
@@ -38,23 +39,20 @@ export class SearchConsoleService {
     } as searchconsole_v1.Options);
   }
 
-  private normalizeUrl(url: string): string {
-    const parsedUrl = new URL(url);
-    if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-      return `sc-domain:${parsedUrl.hostname}`;
-    }
-    return `https://${url}`;
-  }
-
   private async handlePermissionError<T>(
+    siteUrl: string | null | undefined,
     operation: () => Promise<T>,
-    fallbackOperation: () => Promise<T>,
+    fallbackOperation: (fallbackSiteUrl: string) => Promise<T>,
   ): Promise<T> {
     try {
       return await operation();
     } catch (err) {
       if (err instanceof Error && err.message.toLowerCase().includes('permission')) {
-        return await fallbackOperation();
+        const [candidate] = fallbackSiteUrls(siteUrl);
+        if (candidate === undefined) {
+          throw err;
+        }
+        return await fallbackOperation(candidate);
       }
       throw err;
     }
@@ -63,8 +61,9 @@ export class SearchConsoleService {
   async searchAnalytics(siteUrl: string, requestBody: SearchanalyticsQueryRequest) {
     const webmasters = await this.getWebmasters();
     return this.handlePermissionError(
+      siteUrl,
       () => webmasters.searchanalytics.query({ siteUrl, requestBody }),
-      () => webmasters.searchanalytics.query({ siteUrl: this.normalizeUrl(siteUrl), requestBody }),
+      (fallback) => webmasters.searchanalytics.query({ siteUrl: fallback, requestBody }),
     );
   }
 
@@ -138,11 +137,12 @@ export class SearchConsoleService {
   async listSitemaps(requestBody: ListSitemapsRequest) {
     const webmasters = await this.getWebmasters();
     return this.handlePermissionError(
+      requestBody.siteUrl,
       () => webmasters.sitemaps.list(requestBody),
-      () =>
+      (fallback) =>
         webmasters.sitemaps.list({
           ...requestBody,
-          siteUrl: this.normalizeUrl(requestBody.siteUrl!),
+          siteUrl: fallback,
         }),
     );
   }
@@ -150,11 +150,12 @@ export class SearchConsoleService {
   async getSitemap(requestBody: GetSitemapRequest) {
     const webmasters = await this.getWebmasters();
     return this.handlePermissionError(
+      requestBody.siteUrl,
       () => webmasters.sitemaps.get(requestBody),
-      () =>
+      (fallback) =>
         webmasters.sitemaps.get({
           ...requestBody,
-          siteUrl: this.normalizeUrl(requestBody.siteUrl!),
+          siteUrl: fallback,
         }),
     );
   }
@@ -162,11 +163,12 @@ export class SearchConsoleService {
   async submitSitemap(requestBody: SubmitSitemapRequest) {
     const webmasters = await this.getWebmasters();
     return this.handlePermissionError(
+      requestBody.siteUrl,
       () => webmasters.sitemaps.submit(requestBody),
-      () =>
+      (fallback) =>
         webmasters.sitemaps.submit({
           ...requestBody,
-          siteUrl: this.normalizeUrl(requestBody.siteUrl!),
+          siteUrl: fallback,
         }),
     );
   }
