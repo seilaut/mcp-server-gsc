@@ -89,7 +89,8 @@ export function createServer(credentials: string): Server {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     try {
-      if (!request.params.arguments) {
+      // MCP makes `arguments` optional; list_sites takes none, so it must work without them (audit F17).
+      if (!request.params.arguments && request.params.name !== 'list_sites') {
         throw new Error('Arguments are required');
       }
 

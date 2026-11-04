@@ -33,8 +33,8 @@ test('rowLimit: bounds are 1..25000 inclusive', () => {
   assert.equal(ok({ rowLimit: '10' }).success, false, 'string is rejected');
 });
 
-test('rowLimit: non-integers are currently accepted (audit F17, pinned not endorsed)', () => {
-  assert.equal(ok({ rowLimit: 10.5 }).success, true);
+test('rowLimit: non-integers are rejected (audit F17, fixed in T4.1.4)', () => {
+  assert.equal(ok({ rowLimit: 10.5 }).success, false);
 });
 
 test('type: accepts web, image, video, news, discover, googleNews, or omitted', () => {

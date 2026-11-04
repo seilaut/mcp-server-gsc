@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+// YYYY-MM-DD, and a real calendar day (rejects 2026-02-30). The message is fixed text, never the input.
+const DATE_MESSAGE = 'Must be a date in YYYY-MM-DD format';
+const dateString = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_MESSAGE)
+  .refine((v) => {
+    const d = new Date(`${v}T00:00:00Z`);
+    return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
+  }, DATE_MESSAGE);
+
 export const GSCBaseSchema = z.object({
   siteUrl: z
     .string()
@@ -9,8 +19,8 @@ export const GSCBaseSchema = z.object({
 });
 
 export const SearchAnalyticsSchema = GSCBaseSchema.extend({
-  startDate: z.string().describe('Start date in YYYY-MM-DD format'),
-  endDate: z.string().describe('End date in YYYY-MM-DD format'),
+  startDate: dateString.describe('Start date in YYYY-MM-DD format'),
+  endDate: dateString.describe('End date in YYYY-MM-DD format'),
   dimensions: z
     .string()
     .transform((val) => val.split(',').map((d) => d.trim()))
@@ -29,7 +39,7 @@ export const SearchAnalyticsSchema = GSCBaseSchema.extend({
     .enum(['auto', 'byNewsShowcasePanel', 'byProperty', 'byPage'])
     .optional()
     .describe('Type of aggregation, such as auto, byNewsShowcasePanel, byProperty, byPage'),
-  rowLimit: z.number().min(1).max(25000).default(1000).describe('Maximum number of rows to return (up to 25,000 for enhanced performance)'),
+  rowLimit: z.number().int().min(1).max(25000).default(1000).describe('Maximum number of rows to return (up to 25,000 for enhanced performance)'),
   pageFilter: z.string().optional().describe('Filter by a specific page URL. Use with filterOperator.'),
   queryFilter: z.string().optional().describe('Filter by a specific query string. Use with filterOperator.'),
   countryFilter: z.string().optional().describe('Filter by a country using ISO 3166-1 alpha-3 code (e.g., USA, CHN).'),
@@ -65,18 +75,15 @@ export const ListSitemapsSchema = z.object({
     ),
   siteUrl: z
     .string()
-    .optional()
     .describe("The site's URL, including protocol. For example: http://www.example.com/"),
 });
 
 export const GetSitemapSchema = z.object({
   feedpath: z
     .string()
-    .optional()
     .describe('The URL of the actual sitemap. For example: http://www.example.com/sitemap.xml'),
   siteUrl: z
     .string()
-    .optional()
     .describe("The site's URL, including protocol. For example: http://www.example.com/"),
 });
 
@@ -91,8 +98,8 @@ export const SubmitSitemapSchema = z.object({
 
 // Enhanced Quick Wins Detection Schema
 export const QuickWinsDetectionSchema = GSCBaseSchema.extend({
-  startDate: z.string().describe('Start date in YYYY-MM-DD format'),
-  endDate: z.string().describe('End date in YYYY-MM-DD format'),
+  startDate: dateString.describe('Start date in YYYY-MM-DD format'),
+  endDate: dateString.describe('End date in YYYY-MM-DD format'),
   minImpressions: z.number().default(50).describe('Minimum impressions threshold for quick wins'),
   maxCtr: z.number().default(2.0).describe('Maximum CTR percentage for quick wins detection'),
   positionRangeMin: z.number().default(4).describe('Minimum position for quick wins (default: 4)'),
