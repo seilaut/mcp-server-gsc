@@ -1,6 +1,7 @@
 import { google, searchconsole_v1, webmasters_v3 } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
 import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
+import { applyRegexFilter } from './request-body.js';
 
 type SearchanalyticsQueryRequest =
   webmasters_v3.Params$Resource$Searchanalytics$Query['requestBody'];
@@ -106,19 +107,7 @@ export class SearchConsoleService {
     }
 
     // Apply regex filter if provided
-    if (options.regexFilter && requestBody.dimensions?.includes('query')) {
-      requestBody.dimensionFilterGroups = [
-        ...(requestBody.dimensionFilterGroups || []),
-        {
-          groupType: 'and',
-          filters: [{
-            dimension: 'query',
-            operator: 'includingRegex',
-            expression: options.regexFilter
-          }]
-        }
-      ];
-    }
+    applyRegexFilter(requestBody, options.regexFilter);
 
     // Execute enhanced search analytics
     const result = await this.searchAnalytics(siteUrl, requestBody);

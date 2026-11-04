@@ -12,6 +12,7 @@ import {
 } from './schemas.js';
 import { z } from 'zod';
 import { SearchConsoleService } from './search-console.js';
+import { buildSearchAnalyticsBody } from './request-body.js';
 
 export function createServer(credentials: string): Server {
   if (!credentials) {
@@ -92,50 +93,8 @@ export function createServer(credentials: string): Server {
           const args = EnhancedSearchAnalyticsSchema.parse(request.params.arguments);
           const siteUrl = args.siteUrl;
 
-          // Build enhanced request body
-          const requestBody: any = {
-            startDate: args.startDate,
-            endDate: args.endDate,
-            dimensions: args.dimensions,
-            searchType: args.type,
-            aggregationType: args.aggregationType,
-            rowLimit: args.rowLimit, // Up to 25,000!
-          };
-
-          // Build filters (including regex support)
-          const filters = [];
-          if (args.pageFilter) {
-            filters.push({
-              dimension: 'page',
-              operator: args.filterOperator,
-              expression: args.pageFilter,
-            });
-          }
-          if (args.queryFilter) {
-            filters.push({
-              dimension: 'query',
-              operator: args.filterOperator,
-              expression: args.queryFilter,
-            });
-          }
-          if (args.countryFilter) {
-            filters.push({
-              dimension: 'country',
-              operator: 'equals',
-              expression: args.countryFilter,
-            });
-          }
-          if (args.deviceFilter) {
-            filters.push({
-              dimension: 'device',
-              operator: 'equals',
-              expression: args.deviceFilter,
-            });
-          }
-
-          if (filters.length > 0) {
-            requestBody.dimensionFilterGroups = [{ groupType: 'and', filters }];
-          }
+          // Build enhanced request body (filters, including regex support, up to 25,000 rows)
+          const requestBody = buildSearchAnalyticsBody(args, { groupType: 'and' });
 
           // Call enhanced search analytics
           const enhancedOptions = {
@@ -215,50 +174,7 @@ export function createServer(credentials: string): Server {
           const args = SearchAnalyticsSchema.parse(request.params.arguments);
           const siteUrl = args.siteUrl;
 
-          // --- 动态构建请求体 ---
-          const requestBody: any = {
-            startDate: args.startDate,
-            endDate: args.endDate,
-            dimensions: args.dimensions,
-            searchType: args.type,
-            aggregationType: args.aggregationType,
-            rowLimit: args.rowLimit,
-          };
-
-          const filters = [];
-          if (args.pageFilter) {
-            filters.push({
-              dimension: 'page',
-              operator: args.filterOperator,
-              expression: args.pageFilter,
-            });
-          }
-          if (args.queryFilter) {
-            filters.push({
-              dimension: 'query',
-              operator: args.filterOperator,
-              expression: args.queryFilter,
-            });
-          }
-          if (args.countryFilter) {
-              filters.push({
-                dimension: 'country',
-                operator: 'equals', // Country filter only supports 'equals'
-                expression: args.countryFilter,
-              });
-          }
-          if (args.deviceFilter) {
-              filters.push({
-                dimension: 'device',
-                operator: 'equals', // Device filter only supports 'equals'
-                expression: args.deviceFilter,
-              });
-          }
-
-          if (filters.length > 0) {
-            requestBody.dimensionFilterGroups = [{ filters }];
-          }
-          // --- 构建结束 ---
+          const requestBody = buildSearchAnalyticsBody(args);
 
           const response = await searchConsole.searchAnalytics(siteUrl, requestBody);
           return {
