@@ -52,6 +52,7 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
 - The Worker's /mcp answers `initialize` and `tools/list` with NO auth while MCP_API_TOKEN is unset. Confirmed on HEAD by the final review (run in Node; workerd was not run). Decide in T3.5.1 whether to delete the Worker or set the token (domain: security, awaiting: user).
 - If T4.2.1 grants the write scope, the permission fallback would submit a sitemap to a different property than the one asked for. Exclude submit_sitemap from the fallback first (domain: bug, awaiting: user).
 - engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).
+- **Tonight's commits are NOT pushed** (domain: access, awaiting: user). The GitHub account dgusti59 has pull-only access to seilaut/mcp-server-gsc: `gh api` shows push false, and `git push` answered 403 at 19:04 on 2026-11-04. Branch `work/2026-11-04` (head 41c01c0 plus this note) exists only on seilaut-master. Both scans were clean before the push attempt. Fix: give dgusti59 write access to seilaut/mcp-server-gsc and push from seilaut-master, or push from the Mac that holds the seilaut account.
 
 ## Notes carried forward
 - On seilaut-new, Claude Code's `google-search-console` MCP server (local scope) ran `node dist/index.js` from this folder, with `GOOGLE_APPLICATION_CREDENTIALS` pointing at `~/.openclaw/credentials/gsc-service-account.json`. That file was missing there.
