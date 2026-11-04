@@ -2,10 +2,12 @@ import { z } from 'zod';
 
 // YYYY-MM-DD, and a real calendar day (rejects 2026-02-30). The message is fixed text, never the input.
 const DATE_MESSAGE = 'Must be a date in YYYY-MM-DD format';
-const dateString = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_MESSAGE)
-  .refine((v) => {
+// A factory, not a shared constant: a shared instance makes zod-to-json-schema emit endDate as a
+// $ref to startDate, which hides endDate's type and description from clients.
+// One refine (not regex + refine) so a malformed date reports one issue.
+const dateString = () =>
+  z.string().refine((v) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
     const d = new Date(`${v}T00:00:00Z`);
     return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
   }, DATE_MESSAGE);
@@ -19,8 +21,8 @@ export const GSCBaseSchema = z.object({
 });
 
 export const SearchAnalyticsSchema = GSCBaseSchema.extend({
-  startDate: dateString.describe('Start date in YYYY-MM-DD format'),
-  endDate: dateString.describe('End date in YYYY-MM-DD format'),
+  startDate: dateString().describe('Start date in YYYY-MM-DD format'),
+  endDate: dateString().describe('End date in YYYY-MM-DD format'),
   dimensions: z
     .string()
     .transform((val) => val.split(',').map((d) => d.trim()))
@@ -98,8 +100,8 @@ export const SubmitSitemapSchema = z.object({
 
 // Enhanced Quick Wins Detection Schema
 export const QuickWinsDetectionSchema = GSCBaseSchema.extend({
-  startDate: dateString.describe('Start date in YYYY-MM-DD format'),
-  endDate: dateString.describe('End date in YYYY-MM-DD format'),
+  startDate: dateString().describe('Start date in YYYY-MM-DD format'),
+  endDate: dateString().describe('End date in YYYY-MM-DD format'),
   minImpressions: z.number().default(50).describe('Minimum impressions threshold for quick wins'),
   maxCtr: z.number().default(2.0).describe('Maximum CTR percentage for quick wins detection'),
   positionRangeMin: z.number().default(4).describe('Minimum position for quick wins (default: 4)'),

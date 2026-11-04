@@ -111,3 +111,28 @@ test('other tools still reject omitted arguments', async () => {
     await h.close();
   }
 });
+
+test('a malformed date reports exactly one issue', () => {
+  for (const d of ['yesterday', '2026-1-5', '2026-02-30', '']) {
+    const r = SearchAnalyticsSchema.safeParse({ ...base, startDate: d });
+    assert.equal(r.success, false);
+    assert.equal(r.error!.issues.length, 1, d);
+  }
+});
+
+test('tools/list advertises startDate and endDate as plain strings with no $ref', async () => {
+  const h = await connect();
+  try {
+    const { tools } = await h.client.listTools();
+    for (const name of ['search_analytics', 'enhanced_search_analytics', 'detect_quick_wins']) {
+      const props = (tools.find((t) => t.name === name)!.inputSchema as any).properties;
+      for (const f of ['startDate', 'endDate']) {
+        assert.equal(props[f].type, 'string', `${name}.${f} type`);
+        assert.equal(props[f].$ref, undefined, `${name}.${f} $ref`);
+        assert.ok(props[f].description, `${name}.${f} description`);
+      }
+    }
+  } finally {
+    await h.close();
+  }
+});
