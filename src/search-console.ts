@@ -63,7 +63,11 @@ export class SearchConsoleService {
         try {
           result = await fallbackOperation(candidate);
         } catch (fallbackErr) {
-          if (fallbackErr instanceof Error && fallbackErr.cause === undefined) {
+          if (fallbackErr instanceof Error) {
+            // gaxios always sets its own cause (API detail), so overwrite; keep it reachable.
+            if (fallbackErr.cause !== undefined) {
+              (fallbackErr as Error & { fallbackCause?: unknown }).fallbackCause = fallbackErr.cause;
+            }
             fallbackErr.cause = err;
           }
           throw fallbackErr;

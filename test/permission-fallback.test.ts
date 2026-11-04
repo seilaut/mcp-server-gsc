@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { GaxiosError } from 'gaxios';
 import { SearchConsoleService } from '../src/search-console.ts';
 
 const PERMISSION = 'User does not have sufficient permission for site';
@@ -81,5 +82,23 @@ test('fallback throws: the error carries the original permission error as cause'
   await assert.rejects(
     () => svc.listSitemaps({ siteUrl: REQUESTED }),
     (e: any) => e instanceof Error && e.message === 'fallback also failed' && e.cause === original,
+  );
+});
+
+test('fallback throws a GaxiosError that already has its own cause: cause is still the original; old cause kept as fallbackCause', async () => {
+  const calls: Call[] = [];
+  const original = new GaxiosError(PERMISSION, { url: 'u' } as any, { status: 403 } as any, { code: 403 } as any);
+  const apiDetail = { code: 500, message: 'backend error' };
+  const fallbackErr = new GaxiosError('fallback failed', { url: 'u' } as any, { status: 500 } as any, apiDetail as any);
+  assert.notEqual(fallbackErr.cause, undefined); // precondition: gaxios sets cause itself
+  const svc = serviceWith(
+    fakeClient((u) => {
+      if (u === REQUESTED) throw original;
+      throw fallbackErr;
+    }, calls),
+  );
+  await assert.rejects(
+    () => svc.listSitemaps({ siteUrl: REQUESTED }),
+    (e: any) => e === fallbackErr && e.cause === original && e.fallbackCause === apiDetail && e.status === 500,
   );
 });
