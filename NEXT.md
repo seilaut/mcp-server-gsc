@@ -4,12 +4,12 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 0% · Δ +0 since 2026-11-04 · scope 78 tasks (+0) · hours 0.0 · cost $0.00 · plan @43ed301d
+Progress: 19% · Δ +19 since 2026-11-04 · scope 78 tasks (+0) · hours 0.0 · cost $0.00 · plan @fc85bd3f
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
-| I1 Install, start and prove it | 0 | 0/7 | not started | E1.1, E1.2, E1.3 |
+| I1 Install, start and prove it | 50 | 3/7 | in progress | E1.2, E1.3 |
 | I2 Test stage | 0 | 0/3 | not started | E2.2 |
-| I3 Security | 0 | 0/18 | not started | E3.1, E3.4, E3.5 |
+| I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
 | I4 End product | 0 | 0/12 | not started | E4.1, E4.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
@@ -19,7 +19,7 @@ Audited the same day (`docs/audit/2026-11-04-audit.md`), and PLAN.md was rewritt
 
 ## Direction
 <!-- direction:begin -->
-State: forward · verified this session: — · reopened: none · flat sessions: 0 · ledger @0
+State: forward · verified this session: T1.1.3, T1.1.1, T1.2.1, T3.1.5, T3.1.3 · reopened: none · flat sessions: 0 · ledger @6
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
