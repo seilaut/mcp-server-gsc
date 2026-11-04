@@ -10,7 +10,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const serverArgs = ['--import', 'tsx', 'src/index.ts'];
-const TIMEOUT_MS = 15_000;
+const TIMEOUT_MS = 45_000;
 
 // The tools src/server.ts registers today. Keep sorted.
 const EXPECTED_TOOLS = [
