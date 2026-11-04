@@ -1,44 +1,83 @@
 # PLAN — mcp-server-gsc-fork
-Last verified: 2026-11-04 (baseline draft; verify before trusting)
+Last verified: 2026-11-04 (commit 58474c9, rewritten from docs/audit/2026-11-04-audit.md)
 
 ## Why this project exists
-Role: Diego's fork (seilaut/mcp-server-gsc) of ahonn/mcp-server-gsc, a Google Search Console MCP server (version 0.3.0 in package.json; remediated 2026-10-14 per REMEDIATION.md). It runs over stdio (dist/index.js) and also has a Cloudflare Worker entry (src/remote.ts, wrangler.toml).
-Impact: if it breaks, Search Console queries (25K-row analytics, regex filters, quick-wins detection) fail for the sessions that use it; if compromised, it runs with a Google service-account credential that can read Search Console data. Whether any session currently runs it from this folder: unknown.
-Users: unknown beyond Diego. The README documents a public npm install; no evidence found here that anyone else installs from this fork.
-Security: the fork exists to pass the SkillSpector scan (89/CRITICAL before, 0 vulnerabilities by npm audit after, per REMEDIATION.md); dependencies were raised (googleapis ^186, google-auth-library ^11, tsx 4.23.15) and a patched buffer-equal-constant-time is vendored under patches/. Credentials come from GOOGLE_APPLICATION_CREDENTIALS (stdio) or the GOOGLE_CREDENTIALS secret (Worker); the Worker's bearer token MCP_API_TOKEN is optional, so /mcp is open when it is unset.
-Usability: node dist/index.js starts on stdio when GOOGLE_APPLICATION_CREDENTIALS is set and exits 1 when it is not (src/index.ts). The Worker exposes /health and /mcp. No test files and no test script exist.
-Threat model: a compromised dependency or bad upstream merge (supply chain), a leaked service-account file, and an unauthenticated /mcp if the Worker is deployed without MCP_API_TOKEN. No database, no uploads, no end-user accounts. Whether the Worker is deployed: unknown.
+Role: Diego's fork (seilaut/mcp-server-gsc) of ahonn/mcp-server-gsc, a Google Search Console MCP server (version 0.3.0). The product is the stdio entry, `dist/index.js`. A Cloudflare Worker entry also exists (`src/remote.ts`, `wrangler.toml`). The intended end product, inferred in the audit: a security-vetted local MCP server that lets Diego's Claude sessions read search performance, indexing and sitemap data for the Sei Laut sites through a read-only service account.
+Impact: if it breaks, those sessions lose Search Console data. If it is compromised, it holds a service-account key that can read every property shared with that account. On seilaut-master the server is not registered in Claude Code and no key file is present (audit, 2026-11-04).
+Users: Diego's Claude sessions only. The README's `npm install mcp-server-gsc` pulls ahonn's unremediated 0.3.0, not this fork.
+Security:
+- **npm audit:** clean on 2026-10-14. On 2026-11-04 it shows 2 high and 2 moderate advisories in production dependencies (body-parser, zod, fast-uri, qs).
+- **Lockfiles:** `package-lock.json` is the authoritative one. `pnpm-lock.yaml` was never remediated, and only the Dockerfile uses it.
+- **The buffer-equal-constant-time override:** it installs a dangling link and is never applied. jwa 2.0.1 does not load that module on Node with `crypto.timingSafeEqual`, so nothing crashes (settled 2026-11-04, 17:00).
+- **The Worker:** its `/mcp` is open when `MCP_API_TOKEN` is unset. Whether a Worker is deployed is unknown.
+- **Secrets:** clean. key-scan and `gitleaks dir` found nothing in the tree, and `gitleaks git` found nothing in the 27 commits it scanned.
+
+Usability: after `npm ci` (which also builds), `node dist/index.js` without credentials prints "GOOGLE_APPLICATION_CREDENTIALS environment variable is required" and exits 1 (verified 2026-11-04). The baseline had no tests. `submit_sitemap` cannot work under the read-only scope, and the README drifts from the code.
+Threat model: a compromised dependency (supply chain), a leaked service-account key, an unauthenticated `/mcp` if a Worker is deployed without `MCP_API_TOKEN`, and prompt injection through Search Console query text. No database, no uploads, no end-user accounts.
 
 ## Success criteria
-- S1 The server compiles cleanly and refuses to start without credentials — measured by: T1.1.1, T1.1.2 and T1.1.3
-- S2 No known high-severity advisory in production dependencies — measured by: T3.1.12
+- S1 After a clean npm ci, the server loads, refuses to start without credentials with its own message, and answers an MCP handshake listing its tools — measured by: T1.1.1, T1.1.3 and T1.2.2
+- S2 No high advisory in production dependencies — measured by: T3.1.12
+- S3 No remote endpoint answers without a token: either the Worker is deleted, or it refuses requests when MCP_API_TOKEN is missing — measured by: T3.5.1 (Diego), then T3.5.9 or T3.5.11
+- S4 Diego's Claude sessions on seilaut-master read his Search Console properties — measured by: T4.2.6 (Diego approves)
 
-## I1 — Carried work (w 1) — outcome: the fork stays buildable
-### E1.1 — Fork health (w 1) — done when: each task's criterion passes
-- [ ] T1.1.1 The server builds — label: Server builds — AC: `npm run build` exit 0 [slow] — evidence: —
-- [ ] T1.1.2 The sources type-check — label: Sources type-check — AC: `npx tsc --noEmit` exit 0 [slow] — evidence: —
-- [ ] T1.1.3 The stdio entry refuses to start without credentials — label: Refuses without credentials — AC: `env -u GOOGLE_APPLICATION_CREDENTIALS node dist/index.js` exit 1 [fast] — evidence: —
+## Order for tonight (2026-11-04, 17:45–19:30, one implementer, no credentials, no deploys)
+1. T1.2.1
+2. T1.2.2
+3. T1.3.1
+4. T1.3.2, then T1.3.3, if time remains.
 
-## I2 — Test stage (w 1) — outcome: every class of test the stack warrants has a runnable criterion
+Already passing, so they only need a tick from `progress.mjs --run-ac`, never a hand tick:
+- T1.1.1: its build already ran inside `npm ci` (exit 0).
+- T1.1.3, T3.1.2, T3.1.3 and T3.1.5: their criteria pass in a dry run with the same criterion runner (2026-11-04, 17:09). That run ticked nothing and wrote no ledger row.
+
+Diego decides T3.4.1, T3.5.1 to T3.5.6, T4.2.1 and T4.2.6. The tasks that depend on those decisions carry `after:`.
+
+## Audit findings without a task of their own
+- **F14** (package.json floors): moot once `npm ci` from the lockfile is the only install path (T3.5.12). If Diego keeps Docker, a task to fix the Dockerfile replaces T3.5.12.
+- **F19** (error logging) and **F22** (prompt injection through query text): notes for Diego, not work items.
+
+## I1 — Install, start and prove it (w 3) — outcome: a clean npm ci gives a server that loads, refuses to start without credentials with its own message and answers an MCP handshake, and the supply-chain fixes that need no decision are in
+### E1.1 — Fork health (w 1) — done when: each task's criterion passes — spec: docs/audit/2026-11-04-audit.md
+- [ ] T1.1.1 The server builds — label: Server builds — AC: `npm run build` exit 0 [slow] — est: 0.1h — evidence: —
+- [-] T1.1.2 The sources type-check — dropped 2026-11-04: duplicate of T1.1.1, because npm run build already runs tsc with the same tsconfig; without node_modules, npx tsc fetches the unrelated npm package named tsc (audit F13)
+- [ ] T1.1.3 The stdio entry refuses to start without credentials, with its own message — label: Refuses without credentials — AC: `env -u GOOGLE_APPLICATION_CREDENTIALS node dist/index.js 2>&1 | grep -q 'GOOGLE_APPLICATION_CREDENTIALS environment variable is required'` exit 0 [slow] — after: T1.1.1 — est: 0.1h — evidence: —
+  Note 2026-11-04: the old criterion (exit 1) also passed with no build at all, on MODULE_NOT_FOUND (audit F2). This one passes only when the built server loads and prints its own refusal. Tagged slow because loading googleapis took 9.8 s on this Mac under load.
+### E1.2 — Startup proof (w 1) — done when: each task's criterion passes — spec: docs/audit/2026-11-04-audit.md
+- [ ] T1.2.1 Test harness: an npm test script that runs node --test with tsx (already a devDependency) over test/, plus a first test of the input schemas (dimensions, rowLimit bounds, search types) — label: Test harness, schema test — AC: test:node --import tsx --test test/schemas.test.ts [fast] — est: 0.5h — evidence: —
+- [ ] T1.2.2 Handshake smoke test: start the server from source with a dummy credentials path, send initialize and tools/list over stdio, and expect the 8 tool names, each with an object input schema; without credentials, expect the refusal message — label: Handshake smoke test — AC: test:node --import tsx --test test/handshake.test.ts [slow] — after: T1.2.1 — est: 0.75h — evidence: —
+### E1.3 — Supply-chain fixes that need no decision (w 1) — done when: each task's criterion passes — spec: docs/audit/2026-11-04-audit.md
+- [ ] T1.3.1 Refresh the lockfile for the non-breaking advisories in production dependencies (body-parser GHSA-27r3-jxmh-p828, fast-uri, qs GHSA-6pq8-jhm2-2vcw); zod needs a major upgrade and is T3.5.7 — label: Non-breaking advisory fixes — AC: `npm audit --omit=dev --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);if(j.auditReportVersion!==2)process.exit(2);const v=Object.keys(j.vulnerabilities).filter(n=>n!=='zod');console.log(v.join(' '));process.exit(v.length?1:0)})"` exit 0 [slow] — est: 0.25h — evidence: —
+- [ ] T1.3.2 Correct REMEDIATION.md: date its "0 vulnerabilities" claim to 2026-10-14, record the advisories open on 2026-11-04 (including GHSA-mrhx-c7xc-m3w5), and stop suggesting a COPY of the key into an image (audit F3, F11) — label: Correct REMEDIATION claims — AC: `grep -q 'GHSA-mrhx-c7xc-m3w5' REMEDIATION.md && ! grep -q 'Dockerfile .COPY. or runtime volume' REMEDIATION.md` exit 0 [fast] — est: 0.25h — evidence: —
+- [ ] T1.3.3 Fix the dead buffer-equal-constant-time override: remove it with patches/, or point it at the project root. npm installs it as a dangling link into jwa/, and jwa 2.0.1 never loads the module on Node with crypto.timingSafeEqual, so nothing crashes (audit F1, settled 2026-11-04) — label: Fix dead override link — AC: `node -e "const l=require('./package-lock.json').packages['node_modules/buffer-equal-constant-time'];process.exit(l&&String(l.resolved).includes('node_modules/jwa/')?1:0)" && { test ! -L node_modules/buffer-equal-constant-time || test -e node_modules/buffer-equal-constant-time/package.json; } && node --input-type=module -e "await import('googleapis')"` exit 0 [slow] — est: 0.5h — evidence: —
+
+## I2 — Test stage (w 2) — outcome: the critical paths the audit names have tests that run with npm test
 ### E2.1 — Criterion classes (w 1) — done when: each task's criterion passes
 - [-] T2.1.1 Error paths of an area — dropped 2026-11-04: not applicable: the project has no test files and no test script; a test stage would need new tests first (add a task then)
+  Note 2026-11-04: that reason is circular (audit F6). The test work it skipped is now E1.2, E2.2 and the named tests in I3 and I4.
+### E2.2 — Critical-path tests (w 1) — done when: each task's criterion passes — spec: docs/audit/2026-11-04-audit.md
+- [ ] T2.2.1 Tests for the quick-wins maths (CTR as a percentage, thresholds, sorting), with that logic moved into a module that does not import googleapis — label: Quick-wins maths tested — AC: test:node --import tsx --test test/quick-wins-maths.test.ts [fast] — after: T1.2.1 — est: 0.5h — evidence: —
+- [ ] T2.2.2 Tests for the request bodies of search_analytics and enhanced_search_analytics (filters, operators, dimensionFilterGroups), built by a function in a module that does not import googleapis — label: Request bodies tested — AC: test:node --import tsx --test test/request-body.test.ts [fast] — after: T1.2.1 — est: 0.75h — evidence: —
+- [ ] T2.2.3 Tests for credential loading: inline JSON, a key-file path, and invalid JSON answering "Invalid credentials: failed to parse JSON" — label: Credential loading tested — AC: test:node --import tsx --test test/credentials.test.ts [slow] — after: T1.2.1 — est: 0.5h — evidence: —
 
-## I3 — Security (w 1) — outcome: every launch check has evidence or Diego's dated yes
+## I3 — Security (w 3) — outcome: every launch check has evidence or Diego's dated yes
 ### E3.1 — Static checks (w 1) — done when: the static gate checks pass under --strict — spec: ~/.claude/skills/secure/references/checks.md
 - [-] T3.1.1 Row 1: no key shape in tracked files or the built output — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
-- [ ] T3.1.2 Row 1: guards clean and process.env read only in lib/env — label: Guards clean, env isolated — AC: `bash ~/.claude/skills/secure/scripts/gate.sh . --strict --only guards,env_reads` prints "ok":true [fast] — evidence: —
+- [ ] T3.1.2 Row 1: guards clean and process.env read only in lib/env — label: Guards clean, env isolated — AC: `bash ~/.claude/skills/bootstrap/assets/guards.sh >/dev/null && gitleaks dir dist --no-banner --redact --exit-code 1 && test "$(grep -l 'process\.env' src/*.ts)" = src/index.ts` exit 0 [fast] — after: T1.1.1 — evidence: —
+  Note 2026-11-04: the template's `gate.sh --only guards,env_reads` can never pass here. Its build scan reads only Next.js `.next/` output, so under `--strict` it stays `not_run` for this tsc `dist/` build, and `env_reads` is skipped for non-Next projects. The criterion above checks the same row directly: tracked files, the built output, and the one file that reads `process.env`. The ship gate reads this as a criterion that differs from the template, and only Diego can accept that.
 - [ ] T3.1.3 Row 4: no secret anywhere in git history — label: No secrets in history — AC: `gitleaks detect --no-banner --redact --exit-code 1` exit 0 [slow] — evidence: —
 - [-] T3.1.4 Row 9: every route handler and server action parses its input with zod — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
 - [ ] T3.1.5 Row 11: no string-built SQL — label: No string-built SQL — AC: `bash ~/.claude/skills/secure/scripts/gate.sh . --strict --only sql_strings` prints "ok":true [fast] — evidence: —
 - [-] T3.1.6 Row 12: no console call outside the allowlist, and no-console is an error — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
-- [ ] T3.1.7 Row 12: no token, password or email in the last day of the Worker's logs — label: No secrets in Worker logs — AC: `bash ~/.claude/skills/secure/scripts/gate.sh . --strict --only cloudflare:worker_logs` prints "ok":true [fast] — evidence: —
+- [-] T3.1.7 Row 12: no token, password or email in the last day of the Worker's logs — dropped 2026-11-04: it needs a deployed Worker and Cloudflare access to production logs, and no deployment is recorded (wrangler.toml enables no logs); the Worker decision T3.5.1 comes first, and if the Worker is kept and deployed a new log check is added then (audit F5, F13)
 - [-] T3.1.8 Row 15: every route handler and server action re-authorizes — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
 - [-] T3.1.9 Row 15: the Next.js scanner reports no Critical and no High — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
 - [-] T3.1.10 Row 16: no bare select outside the allowlist — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
 - [-] T3.1.11 Row 17: CSP enforced in source, innerHTML only in lib/json-ld.ts — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
-- [ ] T3.1.12 Row 18: no high advisory in production dependencies — label: No high advisories — AC: `npm audit --omit=dev --audit-level=high` exit 0 [slow] — evidence: —
+- [ ] T3.1.12 Row 18: no high advisory in production dependencies — label: No high advisories — AC: `npm audit --omit=dev --audit-level=high` exit 0 [slow] — after: T1.3.1, T3.5.7 — evidence: —
 - [-] T3.1.13 Row 18: next at or above the 16.4.1 floor — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
-- [ ] T3.1.14 Row 18: vulnerability alerts enabled on the repository — label: Vulnerability alerts on — AC: `gh api -i repos/{owner}/{repo}/vulnerability-alerts | head -1 | grep -q ' 204'` exit 0 [slow] — evidence: —
+- [ ] T3.1.14 Row 18: vulnerability alerts enabled on the repository — label: Vulnerability alerts on — AC: `gh api -i repos/seilaut/mcp-server-gsc/vulnerability-alerts | head -1 | grep -q ' 204'` exit 0 [slow] — after: T3.5.6 — evidence: —
+  Note 2026-11-04: the template's `{owner}/{repo}` resolved to ahonn/mcp-server-gsc on this Mac (the gh default is the upstream remote), so the fork is now named explicitly. The endpoint also needs admin access, which this Mac's gh login (dgusti59) lacks (audit F13). The ship gate reads this as a criterion that differs from the template, and only Diego can accept that.
 ### E3.2 — Data checks (w 1) — done when: every SQL check has fresh passing evidence — spec: ~/.claude/skills/secure/references/sql.md
 - [-] T3.2.1 Row 2: RLS on every public table and zero ERROR advisors — dropped 2026-11-04: not applicable: supabase absent when the initiative was inserted
 - [-] T3.2.2 Row 5: sign-ups disabled — dropped 2026-11-04: not applicable: supabase absent when the initiative was inserted
@@ -66,10 +105,40 @@ Threat model: a compromised dependency or bad upstream merge (supply chain), a l
 - [-] T3.3.13 Row 20: the attack run against staging is clean — dropped 2026-11-04: not applicable: next absent when the initiative was inserted
 ### E3.4 — Owned by Diego (w 1) — done when: each human step has his dated yes — spec: ~/.claude/skills/secure/references/checks.md
 - [ ] T3.4.1 Row 4: every key the history scan found is rotated — label: History keys rotated — AC: Diego approves on <date> — evidence: —
+  Note 2026-11-04: the history scan found no key (gitleaks, 27 commits). Rotating the service-account key for other reasons is T3.5.2.
 - [-] T3.4.2 Row 7: the rate-limit threshold and the firewall rule are decided — dropped 2026-11-04: not applicable: no staging and no recorded deployment of the Worker, so no rate-limit decision is due
 - [-] T3.4.3 Row 11: a deep dynamic pass on staging is authorised and its result read — dropped 2026-11-04: not applicable: no staging exists to run a dynamic pass against
 - [-] T3.4.4 Row 14: MIME spoofing and malware scanning are accepted as residual risk, or a scanner is chosen — dropped 2026-11-04: not applicable: no uploads
 - [-] T3.4.5 Row 20: the staging target is authorised in docs/security/targets.tsv and the residual risk of a clean scan is accepted — dropped 2026-11-04: not applicable: no staging target
+### E3.5 — Findings (w 1) — done when: every finding has a dated yes or a passing criterion — spec: docs/audit/2026-11-04-audit.md
+- [ ] T3.5.1 Decide the Worker: delete src/remote.ts, wrangler.toml and the Worker-only dependencies, or keep it; if a Worker is deployed today, say where, and set MCP_API_TOKEN or take it down (source: audit F5, F12) — label: Worker: delete or keep — AC: Diego approves on <date> — evidence: —
+- [ ] T3.5.2 Decide the service-account key: where it lives now, whether to rotate it now that OpenClaw is retired, and whether to register this server on seilaut-master (source: audit open question 4) — label: Service-account key decision — AC: Diego approves on <date> — evidence: —
+- [ ] T3.5.3 Name the Search Console properties the service account may read and its permission level; Restricted is enough for read-only use (source: audit section c, F9) — label: Properties and permission level — AC: Diego approves on <date> — evidence: —
+- [ ] T3.5.4 Decide zod 4: approve the migration that clears GHSA-mrhx-c7xc-m3w5, or accept the risk with a date (source: audit F3) — label: Decide zod 4 migration — AC: Diego approves on <date> — evidence: —
+- [ ] T3.5.5 Approve removing Dockerfile, smithery.yaml and pnpm-lock.yaml, which nothing uses and the remediation never touched (source: audit F4, F11) — label: Approve removing Docker files — AC: Diego approves on <date> — evidence: —
+- [ ] T3.5.6 Turn on Dependabot alerts for seilaut/mcp-server-gsc and give this Mac's gh login (dgusti59) admin read, or run T3.1.14 logged in as seilaut (source: audit F13) — label: Dependabot alerts on fork — AC: Diego approves on <date> — evidence: —
+- [ ] T3.5.7 Upgrade zod to 4 and keep the schema tests green (source: audit F3) — label: Upgrade zod to 4 — AC: test:node -e "process.exit(/^4\./.test(require('./package-lock.json').packages['node_modules/zod'].version)?0:1)" && node --import tsx --test test/schemas.test.ts [fast] — after: T3.5.4, T1.2.1 — est: 0.75h — evidence: —
+- [ ] T3.5.8 Replace zod-to-json-schema with zod 4's own JSON Schema output; the handshake still lists 8 tools with object input schemas (source: audit F3) — label: Drop zod-to-json-schema — AC: test:! grep -q zod-to-json-schema package.json && node --import tsx --test test/handshake.test.ts [slow] — after: T3.5.7, T1.2.2 — est: 0.75h — evidence: —
+- [ ] T3.5.9 If the Worker is kept: /mcp refuses every request when MCP_API_TOKEN is unset or empty, CORS has no wildcard default, and .gitignore covers .dev.vars and .wrangler/ (source: audit F5, F15) — label: Worker auth fails closed — AC: test:git check-ignore -q .dev.vars && git check-ignore -q .wrangler/state && node --import tsx --test test/remote-auth.test.ts [slow] — after: T3.5.1, T1.2.1 — est: 0.75h — evidence: —
+- [ ] T3.5.10 If the Worker is kept: its dry-run bundle stays under Cloudflare's 64 MiB size limit; the 1-second startup limit is checked only at deploy (source: audit F12) — label: Worker bundle under limit — AC: `npx wrangler deploy --dry-run --outdir .wrangler/dry-run >/dev/null 2>&1 && node -e "const f=require('fs'),p=require('path'),d='.wrangler/dry-run';const n=f.readdirSync(d).filter(x=>/\.m?js$/.test(x)).reduce((a,x)=>a+f.statSync(p.join(d,x)).size,0);console.log(n);process.exit(n>0&&n<64*1024*1024?0:1)"` exit 0 [slow] — after: T3.5.1 — est: 0.5h — evidence: —
+- [ ] T3.5.11 If the Worker is deleted: remove src/remote.ts, wrangler.toml, the wrangler, hono and @hono/mcp dependencies and the dev:remote and deploy scripts, then drop T3.5.9 and T3.5.10 (source: audit F5, F12) — label: Delete the Worker code — AC: `test ! -e src/remote.ts && test ! -e wrangler.toml && ! grep -q -E 'wrangler|hono' package.json` exit 0 [fast] — after: T3.5.1 — est: 0.5h — evidence: —
+- [ ] T3.5.12 Remove Dockerfile, smithery.yaml and pnpm-lock.yaml (source: audit F4, F11) — label: Remove unused Docker files — AC: `test ! -e Dockerfile && test ! -e smithery.yaml && test ! -e pnpm-lock.yaml` exit 0 [fast] — after: T3.5.5 — est: 0.25h — evidence: —
+
+## I4 — End product (w 2) — outcome: Diego's sessions read his Search Console data through tools that behave as documented
+### E4.1 — Correctness fixes (w 1) — done when: each task's criterion passes — spec: docs/audit/2026-11-04-audit.md
+- [ ] T4.1.1 Site URL handling, in a module that does not import googleapis: sc-domain: input is never rewritten, a bare host gets a clear error instead of a TypeError, and the fallback never runs for sc-domain: input (audit F8) — label: Fix site URL fallback — AC: test:node --import tsx --test test/site-url.test.ts [fast] — after: T1.2.1 — est: 0.5h — evidence: —
+- [ ] T4.1.2 No silent property swap: when the permission fallback answers, the result names the property that answered (audit F8) — label: Report the fallback property — AC: test:node --import tsx --test test/permission-fallback.test.ts [slow] — after: T4.1.1 — est: 0.75h — evidence: —
+- [ ] T4.1.3 detect_quick_wins makes one Search Console call, and the tools stop advertising parameters they ignore (regexFilter on search_analytics, estimatedClickValue, conversionRate) (audit F16) — label: Quick wins: one call — AC: test:node --import tsx --test test/quick-wins-calls.test.ts [slow] — after: T1.2.1 — est: 0.75h — evidence: —
+- [ ] T4.1.4 Input validation: YYYY-MM-DD dates, an integer rowLimit, feedpath and siteUrl required where Google requires them, and list_sites works when a client omits arguments (audit F17) — label: Tighten tool input validation — AC: test:node --import tsx --test test/validation.test.ts [slow] — after: T1.2.1 — est: 0.75h — evidence: —
+- [ ] T4.1.5 The server advertises only the tools capability, because it has no resources or prompts handlers (audit F18) — label: Advertise only tools — AC: test:node --import tsx --test test/capabilities.test.ts [slow] — after: T1.2.2 — est: 0.5h — evidence: —
+- [ ] T4.1.6 Move search analytics, sites and sitemaps from the Webmasters v3 client to Search Console v1, whose discovery document is still live (audit F20) — label: Use Search Console v1 — AC: test:node --import tsx --test test/searchconsole-v1.test.ts [slow] — after: T1.2.1 — est: 0.75h — evidence: —
+### E4.2 — Docs, config and the end-product check (w 1) — done when: each task's criterion passes — spec: docs/audit/2026-11-04-audit.md
+- [ ] T4.2.1 Decide submit_sitemap: remove the tool and stay read-only, or grant the write scope it needs (audit F7) — label: Decide submit_sitemap — AC: Diego approves on <date> — evidence: —
+- [ ] T4.2.2 Make submit_sitemap and the requested scopes agree, as decided in T4.2.1: either the tool is gone or the webmasters write scope is requested (audit F7) — label: Resolve submit_sitemap — AC: `node -e "const f=require('fs');const a=f.readdirSync('src').filter(x=>x.endsWith('.ts')).map(x=>f.readFileSync('src/'+x,'utf8')).join('\n');const listed=/['\"]submit_sitemap['\"]/.test(a),write=/auth\/webmasters['\"]/.test(a);process.exit(!listed||write?0:1)"` exit 0 [fast] — after: T4.2.1 — est: 0.5h — evidence: —
+- [ ] T4.2.3 README matches the code: every tool the server lists, only real parameters and defaults, Node 22, and installing this fork rather than the upstream npm package (audit F9) — label: README matches the code — AC: `node -e "const f=require('fs'),r=f.readFileSync('README.md','utf8'),a=f.readdirSync('src').filter(x=>x.endsWith('.ts')).map(x=>f.readFileSync('src/'+x,'utf8')).join('\n');const t=[...a.matchAll(/name: ['\"]([a-z_]+)['\"]/g)].map(m=>m[1]);const bad=t.filter(x=>!r.includes(x)).concat(['dataState','searchAppearanceFilter','detectQuickWins','quickWinsConfig'].filter(x=>r.includes(x)&&!a.includes(x)),['Node.js 18','npm install mcp-server-gsc','\"-y\", \"mcp-server-gsc\"'].filter(x=>r.includes(x)));if(!t.length)bad.push('no tools parsed');console.log(bad.join(', '));process.exit(bad.length?1:0)"` exit 0 [fast] — est: 0.75h — evidence: —
+- [ ] T4.2.4 package.json engines says node >=22, the floor of googleapis 186 and google-auth-library 11 (audit F10) — label: Node 22 engines floor — AC: file:package.json contains "node": ">=22" [fast] — est: 0.1h — evidence: —
+- [ ] T4.2.5 A CLAUDE.md front door that points to PLAN.md, NEXT.md and the audit, with the install and verify commands (audit F21) — label: Add CLAUDE.md front door — AC: `grep -q 'PLAN.md' CLAUDE.md && grep -q 'npm ci' CLAUDE.md` exit 0 [fast] — est: 0.25h — evidence: —
+- [ ] T4.2.6 End-product check by Diego: on seilaut-master, Claude Code's Search Console server answers list_sites with his properties — label: Diego's live check passes — AC: Diego approves on <date> — after: T1.2.2, T3.5.2, T3.5.3 — evidence: —
 
 <!-- recent git history, for the baseline reviewer:
 ee5f19c security: remediate supply chain CVEs, score 89/CRITICAL → 0/LOW
