@@ -124,7 +124,6 @@ export function createServer(credentials: string): Server {
         case 'detect_quick_wins': {
           const args = QuickWinsDetectionSchema.parse(request.params.arguments);
 
-          // First get search analytics data
           const requestBody: any = {
             startDate: args.startDate,
             endDate: args.endDate,
@@ -132,20 +131,6 @@ export function createServer(credentials: string): Server {
             rowLimit: 25000, // Maximum for comprehensive analysis
           };
 
-          const searchResponse = await searchConsole.searchAnalytics(args.siteUrl, requestBody);
-
-          if (!searchResponse.data.rows) {
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: JSON.stringify({ message: 'No data available for quick wins analysis' }, null, 2),
-                },
-              ],
-            };
-          }
-
-          // Apply quick wins detection
           const quickWinsOptions = {
             enableQuickWins: true,
             quickWinsThresholds: {
@@ -156,11 +141,24 @@ export function createServer(credentials: string): Server {
             },
           };
 
+          // One Search Console call (audit F16): enhancedSearchAnalytics runs the query
+          // itself and adds the quick wins when rows come back.
           const enhancedResult = await searchConsole.enhancedSearchAnalytics(
             args.siteUrl,
             requestBody,
             quickWinsOptions
           );
+
+          if (!enhancedResult.data.rows) {
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({ message: 'No data available for quick wins analysis' }, null, 2),
+                },
+              ],
+            };
+          }
 
           return {
             content: [

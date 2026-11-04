@@ -39,7 +39,6 @@ export const SearchAnalyticsSchema = GSCBaseSchema.extend({
     .default('equals')
     .optional()
     .describe('Operator for page and query filters. Defaults to "equals". Enhanced with regex support.'),
-  regexFilter: z.string().optional().describe('Advanced regex filter for intelligent query matching'),
 });
 
 export const IndexInspectSchema = GSCBaseSchema.extend({
@@ -98,12 +97,11 @@ export const QuickWinsDetectionSchema = GSCBaseSchema.extend({
   maxCtr: z.number().default(2.0).describe('Maximum CTR percentage for quick wins detection'),
   positionRangeMin: z.number().default(4).describe('Minimum position for quick wins (default: 4)'),
   positionRangeMax: z.number().default(10).describe('Maximum position for quick wins (default: 10)'),
-  estimatedClickValue: z.number().default(1.0).describe('Estimated value per click for ROI calculation'),
-  conversionRate: z.number().default(0.03).describe('Estimated conversion rate for ROI calculation'),
 });
 
 // Enhanced Search Analytics Schema with Quick Wins
 export const EnhancedSearchAnalyticsSchema = SearchAnalyticsSchema.extend({
+  regexFilter: z.string().optional().describe('Advanced regex filter for intelligent query matching'),
   enableQuickWins: z.boolean().default(false).describe('Enable automatic quick wins detection'),
   quickWinsThresholds: QuickWinsDetectionSchema.pick({
     minImpressions: true,
