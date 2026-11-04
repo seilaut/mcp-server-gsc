@@ -1,5 +1,6 @@
 import { google, searchconsole_v1, webmasters_v3 } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
+import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
 
 type SearchanalyticsQueryRequest =
   webmasters_v3.Params$Resource$Searchanalytics$Query['requestBody'];
@@ -148,56 +149,9 @@ export class SearchConsoleService {
    */
   private detectQuickWins(
     rows: any[], 
-    thresholds: {
-      minImpressions?: number;
-      maxCtr?: number;
-      positionRangeMin?: number;
-      positionRangeMax?: number;
-    } = {}
+    thresholds: QuickWinsThresholds = {}
   ) {
-    const {
-      minImpressions = 50,
-      maxCtr = 2.0,
-      positionRangeMin = 4,
-      positionRangeMax = 10
-    } = thresholds;
-
-    return rows
-      .filter(row => {
-        const impressions = row.impressions || 0;
-        const ctr = (row.ctr || 0) * 100;
-        const position = row.position || 0;
-
-        return impressions >= minImpressions &&
-               ctr <= maxCtr &&
-               position >= positionRangeMin &&
-               position <= positionRangeMax;
-      })
-      .map(row => {
-        const impressions = row.impressions || 0;
-        const currentClicks = row.clicks || 0;
-        const currentCtr = (row.ctr || 0) * 100;
-        const position = row.position || 0;
-
-        // Calculate potential with 5% target CTR
-        const targetCtr = 5.0;
-        const potentialClicks = Math.round((impressions * targetCtr) / 100);
-        const additionalClicks = Math.max(0, potentialClicks - currentClicks);
-
-        return {
-          query: row.keys?.[0] || 'N/A',
-          page: row.keys?.[1] || 'N/A',
-          currentPosition: Number(position.toFixed(1)),
-          impressions: impressions,
-          currentClicks: currentClicks,
-          currentCtr: Number(currentCtr.toFixed(2)),
-          potentialClicks: potentialClicks,
-          additionalClicks: additionalClicks,
-          opportunity: additionalClicks > 0 ? 'High' : 'Low',
-          optimizationNote: `Move from position ${position.toFixed(1)} to improve CTR`
-        };
-      })
-      .sort((a, b) => b.additionalClicks - a.additionalClicks);
+    return detectQuickWins(rows, thresholds);
   }
 
   async listSites() {
