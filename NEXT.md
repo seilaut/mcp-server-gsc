@@ -4,20 +4,20 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 56% · Δ +15 since 2026-11-04 · scope 78 tasks (+0) · hours 0.0 · cost $0.00 · plan @29c7c751
+Progress: 64% · Δ +23 since 2026-11-04 · scope 78 tasks (+0) · hours 0.0 · cost $0.00 · plan @bfa926c0
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
-| I4 End product | 8 | 1/12 | in progress | E4.1, E4.2 |
+| I4 End product | 50 | 6/12 | in progress | E4.1, E4.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
-Tonight (2026-11-04, on seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. Ticked by `progress.mjs --run-ac` after a task review: the build and the credentials refusal (T1.1.1, T1.1.3), the test harness and its tests (T1.2.1, T1.2.2, T2.2.1-T2.2.3), the non-breaking dependency advisories and the dead override (T1.3.1, T1.3.3), REMEDIATION.md (T1.3.2), the scanner checks (T3.1.3, T3.1.5) and the site-URL fix (T4.1.1). `npm test` now runs schemas, handshake, quick-wins maths, request bodies, credentials, site URL and permission fallback. `npm audit --omit=dev` leaves only zod (<4.6.6, high), which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
+On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
 
 ## Direction
 <!-- direction:begin -->
-State: forward · verified this session: T1.1.3, T1.1.1, T1.2.1, T3.1.5, T3.1.3, T1.2.2, T1.3.1, T1.3.3, T1.3.2, T2.2.1, T2.2.2, T2.2.3, T4.1.1 · reopened: none · flat sessions: 0 · ledger @22
+State: forward · verified this session: T1.1.3, T1.1.1, T1.2.1, T3.1.5, T3.1.3, T1.2.2, T1.3.1, T1.3.3, T1.3.2, T2.2.1, T2.2.2, T2.2.3, T4.1.1, T4.1.2, T4.1.3, T4.1.4, T4.2.4, T4.1.5 · reopened: none · flat sessions: 0 · ledger @31
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
@@ -45,9 +45,12 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
   - T4.2.1: submit_sitemap
   - T3.4.1: the template row on rotating keys found in history (none were found)
   - T4.2.6: his own live check
-- Not in the plan yet; Diego decides whether it becomes a task (domain: bug, awaiting: user). `regexFilter` is silently dropped unless `dimensions` includes `query` (src/request-body.ts:105), so the user gets unfiltered numbers. The quick-wins output then claims `regexFilterApplied: true` (src/search-console.ts:124). README.md:97-98 and :132 promise a `regex:` prefix that no code handles. Pinned as `todo` tests in test/request-body.test.ts. T4.1.3 covers only the advertising part.
+- Not in the plan yet; Diego decides whether it becomes a task (domain: bug, awaiting: user). `regexFilter` is silently dropped unless `dimensions` includes `query` (src/request-body.ts:86), so the user gets unfiltered numbers. The quick-wins output then claims `regexFilterApplied: true` (src/search-console.ts:144). README.md:97-98 and :132 promise a `regex:` prefix that no code handles. Pinned as `todo` tests in test/request-body.test.ts. T4.1.3 covers only the advertising part.
 - Not in the plan (domain: bug, awaiting: user): F8's `www.` prefix in the `sc-domain:www.…` fallback is tracked by no task. Leaving it as is stays the safer default.
 - Not in the plan (domain: bug, awaiting: user): an exact custom CTR threshold such as 7% is missed through floating point (`ctr*100 <= maxCtr`). The default of 2% is never affected.
+- The Worker's /mcp answers `initialize` and `tools/list` with NO auth while MCP_API_TOKEN is unset. Confirmed on HEAD by the final review (run in Node; workerd was not run). Decide in T3.5.1 whether to delete the Worker or set the token (domain: security, awaiting: user).
+- If T4.2.1 grants the write scope, the permission fallback would submit a sitemap to a different property than the one asked for. Exclude submit_sitemap from the fallback first (domain: bug, awaiting: user).
+- engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).
 
 ## Notes carried forward
 - On seilaut-new, Claude Code's `google-search-console` MCP server (local scope) ran `node dist/index.js` from this folder, with `GOOGLE_APPLICATION_CREDENTIALS` pointing at `~/.openclaw/credentials/gsc-service-account.json`. That file was missing there.
