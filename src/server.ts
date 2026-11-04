@@ -33,9 +33,7 @@ export function createServer(credentials: string): Server {
     },
     {
       capabilities: {
-        resources: {},
         tools: {},
-        prompts: {},
       },
     },
   );
