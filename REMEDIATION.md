@@ -9,7 +9,7 @@ Remediator: seilaut / Claude Code
 ## Summary
 
 SkillSpector pre-remediation score: **89/CRITICAL** (34 issues: 32 supply-chain CVEs, 2 privilege-escalation findings)  
-Post-remediation score: **0 vulnerabilities** (`npm audit` clean)
+Post-remediation score: **0 vulnerabilities** (`npm audit` clean) as of 2026-10-14. This was true on that date only; see the 2026-11-04 update below for the current state.
 
 ---
 
@@ -45,7 +45,7 @@ Applied a `c as any` cast in `src/remote.ts:23` — runtime behavior unchanged, 
 
 **Finding:** SkillSpector flagged `ENV GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json` as a potential privilege escalation vector.
 
-**Assessment:** This is a standard Google Cloud service account credential path used by all Google Cloud client libraries. The environment variable tells the GCP SDK where to find the service account JSON file mounted at runtime. There is no privilege escalation here — the service account's IAM permissions are defined in GCP, not granted by this path assignment. The path `/app/credentials.json` is mounted as a secret at container startup (Dockerfile `COPY` or runtime volume) and is the conventional location for this pattern.
+**Assessment:** This is a standard Google Cloud service account credential path used by all Google Cloud client libraries. The environment variable tells the GCP SDK where to find the service account JSON file mounted at runtime. There is no privilege escalation here — the service account's IAM permissions are defined in GCP, not granted by this path assignment. The path `/app/credentials.json` is the conventional location for this pattern. The key file must be supplied at run time only, as a mounted secret or an environment variable. It must never be baked into an image layer (no `COPY` of the key in the Dockerfile), because anyone who can pull the image could then read the private key.
 
 **Action:** No change. This is correct, secure configuration.
 
@@ -61,7 +61,7 @@ Applied a `c as any` cast in `src/remote.ts:23` — runtime behavior unchanged, 
 
 ---
 
-## Final State
+## Final State (as of 2026-10-14)
 
 ```
 npm audit
@@ -69,3 +69,39 @@ found 0 vulnerabilities
 ```
 
 Build: `npm run build` → exit 0 (TypeScript compilation clean)
+
+---
+
+## Update 2026-11-04: advisories published after the remediation
+
+The "0 vulnerabilities" result above was true on 2026-10-14 and is no longer true. GitHub published or reviewed new advisories afterwards (audit `docs/audit/2026-11-04-audit.md`, finding F3).
+
+### Open on 2026-11-04 (`npm audit --omit=dev`, before the fixes below): 4 vulnerabilities (2 high, 2 moderate)
+
+| Package | Affected range | Advisory | Severity |
+|---------|----------------|----------|----------|
+| body-parser | 2.0.0 to 2.3.0 | GHSA-27r3-jxmh-p828 | high |
+| zod | <4.6.6 | GHSA-mrhx-c7xc-m3w5 | high |
+| fast-uri | 3.0.0 to 3.1.8 | 4 advisories | moderate |
+| qs | 6.7.0 to 6.16.0 | GHSA-6pq8-jhm2-2vcw | moderate |
+
+### Fixed on 2026-11-04
+
+- Commit `b123bc8` refreshed the lockfile only (`npm audit fix --omit=dev`, no `--force`): body-parser 2.3.0 to 2.4.0, fast-uri 3.1.8 to 3.1.9, qs 6.16.0 to 6.17.1, and iconv-lite 0.7.2 to 0.7.3 (transitive).
+- Commit `c7080c9` removed the dead `buffer-equal-constant-time` override and `patches/` (audit F1). It was a cleanup, not an advisory fix. The lockfile now uses the registry `buffer-equal-constant-time` 1.0.1.
+
+### Still open
+
+`npm audit --omit=dev` on the current tree reports one vulnerability:
+
+```
+zod  <4.6.6
+Severity: high
+Zod can exhaust memory while validating oversized constrained collections - https://github.com/advisories/GHSA-mrhx-c7xc-m3w5
+```
+
+The fix is a major upgrade (zod 3.25.76 to 4.6.7), tracked as T3.5.7 and awaiting Diego's decision. Until then `npm audit --omit=dev` exits non-zero.
+
+### Not covered by this log
+
+`pnpm-lock.yaml` was never remediated, and the Dockerfile installs from it (audit F4, F11). The Dockerfile path is not covered by the results above.
