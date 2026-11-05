@@ -119,3 +119,7 @@ ts	session	event	id	detail	model	evidence
 2026-11-04T18:03:03.619Z	local	direction		state=forward		
 2026-11-04T20:37:11.456Z	ca67b745-6c13-45ca-8719-7a6130596400	rollup		pct=58;total=85;done=18		
 2026-11-04T20:37:11.480Z	ca67b745-6c13-45ca-8719-7a6130596400	direction		state=forward		
+2026-11-05T00:24:27.412Z	cf1bcec7-56af-43ae-9536-1e29a2ebc8e6	task_reopened	T1.3.3	exit 1		
+2026-11-05T00:24:27.416Z	cf1bcec7-56af-43ae-9536-1e29a2ebc8e6	rollup		pct=55;total=85;done=17		
+2026-11-05T00:24:40.709Z	cf1bcec7-56af-43ae-9536-1e29a2ebc8e6	direction		state=forward		
+2026-11-05T00:25:45.790Z	local	rollup		pct=55;total=85;done=17		
