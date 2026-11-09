@@ -140,3 +140,9 @@ ts	session	event	id	detail	model	evidence
 2026-11-09T16:58:41.912Z	local	direction		state=blocked		
 2026-11-09T17:02:55.559Z	local	rollup		pct=58;total=85;done=18		
 2026-11-09T17:02:55.591Z	local	direction		state=blocked		
+2026-11-09T17:10:39.958Z	4409796e-c040-4b67-b3f6-4245f8513e3d	task_done	T4.2.5	criterion passed		run 2026-11-09T17:10:39.512Z
+2026-11-09T17:10:39.970Z	4409796e-c040-4b67-b3f6-4245f8513e3d	rollup		pct=60;total=85;done=19		
+2026-11-09T17:10:40.240Z	4409796e-c040-4b67-b3f6-4245f8513e3d	task_done	T5.1.6	criterion passed		run 2026-11-09T17:10:40.135Z
+2026-11-09T17:10:40.250Z	4409796e-c040-4b67-b3f6-4245f8513e3d	rollup		pct=61;total=85;done=20		
+2026-11-09T17:10:40.613Z	local	rollup		pct=61;total=85;done=20		
+2026-11-09T17:10:40.656Z	local	direction		state=blocked		
