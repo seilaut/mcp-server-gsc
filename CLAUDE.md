@@ -13,7 +13,8 @@ Front door for `mcp-server-gsc` (fork of `ahonn/mcp-server-gsc`): an MCP server 
 
 ```bash
 npm ci                 # install from the lockfile
-npx tsc --noEmit       # type-check
+npx tsc --noEmit       # type-check (src only)
+npx tsc --noEmit -p tsconfig.test.json   # type-check the tests
 npm test               # node --import tsx --test test/*.test.ts
 npm run build          # tsc into dist/
 node --import tsx --test test/schemas.test.ts   # one focused test file
