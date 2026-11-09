@@ -6,7 +6,7 @@ import { SearchConsoleService } from '../src/search-console.ts';
 import { nameRequestedProperty, pickFallbackFields } from '../src/fallback-labels.ts';
 
 
-// Nothing here calls Google: getWebmasters is replaced with a fake client.
+// Nothing here calls Google: getSearchConsole is replaced with a fake client.
 const PERMISSION = 'User does not have sufficient permission for site';
 const REQUESTED = 'https://www.example.com/';
 const ANSWERED = 'sc-domain:www.example.com';
@@ -23,15 +23,15 @@ function fakeClient(behaviour: Behaviour) {
 
 function serviceWith(client: unknown) {
   const svc = new SearchConsoleService('/nonexistent/key.json');
-  (svc as unknown as { getWebmasters: () => Promise<unknown> }).getWebmasters = async () => client;
+  (svc as unknown as { getSearchConsole: () => Promise<unknown> }).getSearchConsole = async () => client;
   return svc;
 }
 
 // Drives the server over an in-memory transport with raw JSON-RPC.
 async function callTool(client: unknown, name: string, args: Record<string, unknown>) {
-  const proto = SearchConsoleService.prototype as unknown as { getWebmasters: () => Promise<unknown> };
-  const original = proto.getWebmasters;
-  proto.getWebmasters = async () => client;
+  const proto = SearchConsoleService.prototype as unknown as { getSearchConsole: () => Promise<unknown> };
+  const original = proto.getSearchConsole;
+  proto.getSearchConsole = async () => client;
   const server = createServer('/nonexistent/key.json');
   const [a, b] = InMemoryTransport.createLinkedPair();
   const originalConsoleError = console.error;
@@ -50,7 +50,7 @@ async function callTool(client: unknown, name: string, args: Record<string, unkn
     return m.result as { isError?: boolean; content: Array<{ text: string }> };
   } finally {
     console.error = originalConsoleError;
-    proto.getWebmasters = original;
+    proto.getSearchConsole = original;
     await server.close();
   }
 }

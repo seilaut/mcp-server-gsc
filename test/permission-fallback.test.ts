@@ -7,7 +7,7 @@ const PERMISSION = 'User does not have sufficient permission for site';
 
 type Call = { siteUrl: string };
 
-// Fake webmasters client: every method records its siteUrl and either succeeds or throws.
+// Fake Search Console client: every method records its siteUrl and either succeeds or throws.
 function fakeClient(behaviour: (siteUrl: string) => unknown, calls: Call[]) {
   const method = async (params: { siteUrl: string }) => {
     calls.push({ siteUrl: params.siteUrl });
@@ -21,8 +21,8 @@ function fakeClient(behaviour: (siteUrl: string) => unknown, calls: Call[]) {
 
 function serviceWith(client: unknown) {
   const svc = new SearchConsoleService('/nonexistent/key.json');
-  // getWebmasters is private; name the one member the test replaces instead of casting to any.
-  (svc as unknown as { getWebmasters: () => Promise<unknown> }).getWebmasters = async () => client;
+  // getSearchConsole is private; name the one member the test replaces instead of casting to any.
+  (svc as unknown as { getSearchConsole: () => Promise<unknown> }).getSearchConsole = async () => client;
   return svc;
 }
 

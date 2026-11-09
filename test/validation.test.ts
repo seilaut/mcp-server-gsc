@@ -71,8 +71,8 @@ test('sitemaps: Google requires siteUrl for list, siteUrl and feedpath for get a
 });
 
 async function connect() {
-  const original = (SearchConsoleService.prototype as any).getWebmasters;
-  (SearchConsoleService.prototype as any).getWebmasters = async () => ({
+  const original = (SearchConsoleService.prototype as any).getSearchConsole;
+  (SearchConsoleService.prototype as any).getSearchConsole = async () => ({
     sites: { list: async () => ({ data: { siteEntry: [{ siteUrl: site, permissionLevel: 'siteOwner' }] } }) },
   });
   const server = createServer('/nonexistent/key.json');
@@ -82,7 +82,7 @@ async function connect() {
   return {
     client,
     async close() {
-      (SearchConsoleService.prototype as any).getWebmasters = original;
+      (SearchConsoleService.prototype as any).getSearchConsole = original;
       await client.close();
       await server.close();
     },

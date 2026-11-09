@@ -1,4 +1,4 @@
-import { google, searchconsole_v1, webmasters_v3 } from 'googleapis';
+import { google, searchconsole_v1 } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
 import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
 import { applyRegexFilter } from './request-body.js';
@@ -7,10 +7,10 @@ import { fallbackSiteUrls } from './site-url.js';
 import type { PermissionFallbackError } from './fallback-labels.js';
 
 type SearchanalyticsQueryRequest =
-  webmasters_v3.Params$Resource$Searchanalytics$Query['requestBody'];
-type ListSitemapsRequest = webmasters_v3.Params$Resource$Sitemaps$List;
-type GetSitemapRequest = webmasters_v3.Params$Resource$Sitemaps$Get;
-type SubmitSitemapRequest = webmasters_v3.Params$Resource$Sitemaps$Submit;
+  searchconsole_v1.Params$Resource$Searchanalytics$Query['requestBody'];
+type ListSitemapsRequest = searchconsole_v1.Params$Resource$Sitemaps$List;
+type GetSitemapRequest = searchconsole_v1.Params$Resource$Sitemaps$Get;
+type SubmitSitemapRequest = searchconsole_v1.Params$Resource$Sitemaps$Submit;
 type IndexInspectRequest =
   searchconsole_v1.Params$Resource$Urlinspection$Index$Inspect['requestBody'];
 
@@ -20,16 +20,8 @@ export class SearchConsoleService {
   constructor(credentials: string) {
     this.auth = new google.auth.GoogleAuth({
       ...resolveCredentialConfig(credentials),
-      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
+      scopes: ['https://www.googleapis.com/auth/searchConsole.readonly'],
     });
-  }
-
-  private async getWebmasters() {
-    const authClient = await this.auth.getClient();
-    return google.webmasters({
-      version: 'v3',
-      auth: authClient,
-    } as webmasters_v3.Options);
   }
 
   private async getSearchConsole() {
@@ -103,11 +95,11 @@ export class SearchConsoleService {
   }
 
   async searchAnalytics(siteUrl: string, requestBody: SearchanalyticsQueryRequest) {
-    const webmasters = await this.getWebmasters();
+    const searchConsole = await this.getSearchConsole();
     return this.handlePermissionError(
       siteUrl,
-      () => webmasters.searchanalytics.query({ siteUrl, requestBody }),
-      (fallback) => webmasters.searchanalytics.query({ siteUrl: fallback, requestBody }),
+      () => searchConsole.searchanalytics.query({ siteUrl, requestBody }),
+      (fallback) => searchConsole.searchanalytics.query({ siteUrl: fallback, requestBody }),
     );
   }
 
@@ -174,17 +166,17 @@ export class SearchConsoleService {
   }
 
   async listSites() {
-    const webmasters = await this.getWebmasters();
-    return webmasters.sites.list();
+    const searchConsole = await this.getSearchConsole();
+    return searchConsole.sites.list();
   }
 
   async listSitemaps(requestBody: ListSitemapsRequest) {
-    const webmasters = await this.getWebmasters();
+    const searchConsole = await this.getSearchConsole();
     return this.handlePermissionError(
       requestBody.siteUrl,
-      () => webmasters.sitemaps.list(requestBody),
+      () => searchConsole.sitemaps.list(requestBody),
       (fallback) =>
-        webmasters.sitemaps.list({
+        searchConsole.sitemaps.list({
           ...requestBody,
           siteUrl: fallback,
         }),
@@ -192,12 +184,12 @@ export class SearchConsoleService {
   }
 
   async getSitemap(requestBody: GetSitemapRequest) {
-    const webmasters = await this.getWebmasters();
+    const searchConsole = await this.getSearchConsole();
     return this.handlePermissionError(
       requestBody.siteUrl,
-      () => webmasters.sitemaps.get(requestBody),
+      () => searchConsole.sitemaps.get(requestBody),
       (fallback) =>
-        webmasters.sitemaps.get({
+        searchConsole.sitemaps.get({
           ...requestBody,
           siteUrl: fallback,
         }),
@@ -205,12 +197,12 @@ export class SearchConsoleService {
   }
 
   async submitSitemap(requestBody: SubmitSitemapRequest) {
-    const webmasters = await this.getWebmasters();
+    const searchConsole = await this.getSearchConsole();
     return this.handlePermissionError(
       requestBody.siteUrl,
-      () => webmasters.sitemaps.submit(requestBody),
+      () => searchConsole.sitemaps.submit(requestBody),
       (fallback) =>
-        webmasters.sitemaps.submit({
+        searchConsole.sitemaps.submit({
           ...requestBody,
           siteUrl: fallback,
         }),

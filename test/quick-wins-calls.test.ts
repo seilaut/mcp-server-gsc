@@ -20,8 +20,8 @@ const ROWS = [
 type Call = { siteUrl: string; requestBody: unknown };
 
 async function connect(behaviour: (siteUrl: string) => unknown, calls: Call[]) {
-  const original = (SearchConsoleService.prototype as any).getWebmasters;
-  (SearchConsoleService.prototype as any).getWebmasters = async () => ({
+  const original = (SearchConsoleService.prototype as any).getSearchConsole;
+  (SearchConsoleService.prototype as any).getSearchConsole = async () => ({
     searchanalytics: {
       query: async (p: { siteUrl: string; requestBody: unknown }) => {
         calls.push({ siteUrl: p.siteUrl, requestBody: p.requestBody });
@@ -36,7 +36,7 @@ async function connect(behaviour: (siteUrl: string) => unknown, calls: Call[]) {
   return {
     client,
     async close() {
-      (SearchConsoleService.prototype as any).getWebmasters = original;
+      (SearchConsoleService.prototype as any).getSearchConsole = original;
       await client.close();
       await server.close();
     },

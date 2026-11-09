@@ -37,8 +37,8 @@ test('site-url: a short bad value is still echoed in full', () => {
 });
 
 test('zod enum error from the server does not echo a long invalid value', async () => {
-  const original = (SearchConsoleService.prototype as any).getWebmasters;
-  (SearchConsoleService.prototype as any).getWebmasters = async () => ({});
+  const original = (SearchConsoleService.prototype as any).getSearchConsole;
+  (SearchConsoleService.prototype as any).getSearchConsole = async () => ({});
   const server = createServer('/nonexistent/key.json');
   const [a, b] = InMemoryTransport.createLinkedPair();
   const client = new Client({ name: 'input-echo-test', version: '0.0.0' });
@@ -67,7 +67,7 @@ test('zod enum error from the server does not echo a long invalid value', async 
     assert.ok(!message.includes('y'.repeat(200)));
   } finally {
     console.error = originalConsoleError;
-    (SearchConsoleService.prototype as any).getWebmasters = original;
+    (SearchConsoleService.prototype as any).getSearchConsole = original;
     await client.close();
     await server.close();
   }
