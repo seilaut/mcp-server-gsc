@@ -13,6 +13,7 @@ import {
 import { z } from 'zod';
 import { SearchConsoleService } from './search-console.js';
 import { buildSearchAnalyticsBody } from './request-body.js';
+import { truncateForError } from './site-url.js';
 
 function pickFallbackFields(data: unknown) {
   const d = (data ?? {}) as Record<string, unknown>;
@@ -281,7 +282,7 @@ export function createServer(credentials: string): Server {
       console.error(error);
       if (error instanceof z.ZodError) {
         throw new Error(
-          `Invalid arguments: ${error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+          `Invalid arguments: ${error.errors.map((e) => `${e.path.join('.')}: ${truncateForError(e.message, 150)}`).join(', ')}`,
         );
       }
       throw error;

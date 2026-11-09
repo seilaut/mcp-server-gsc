@@ -4,6 +4,13 @@
 const ACCEPTED_FORMS =
   'Use "sc-domain:example.com" for a domain property or "https://www.example.com/" for a URL-prefix property.';
 
+const MAX_ECHO = 100;
+
+/** Shorten user input before it goes into an error message. */
+export function truncateForError(value: string, max: number = MAX_ECHO): string {
+  return value.length <= max ? value : `${value.slice(0, max)}... (${value.length} characters)`;
+}
+
 /**
  * Alternative property names to try when a query is refused for permission.
  * - sc-domain: input is never rewritten and has no candidates.
@@ -21,10 +28,10 @@ export function fallbackSiteUrls(url: string | null | undefined): string[] {
   try {
     parsedUrl = new URL(url);
   } catch {
-    throw new Error(`Invalid siteUrl "${url}". ${ACCEPTED_FORMS}`);
+    throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
   }
   if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
     return [`sc-domain:${parsedUrl.hostname}`];
   }
-  throw new Error(`Invalid siteUrl "${url}". ${ACCEPTED_FORMS}`);
+  throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
 }
