@@ -9,7 +9,7 @@ Remediator: seilaut / Claude Code
 ## Summary
 
 SkillSpector pre-remediation score: **89/CRITICAL** (34 issues: 32 supply-chain CVEs, 2 privilege-escalation findings)  
-Post-remediation score: **0 vulnerabilities** (`npm audit` clean) as of 2026-10-14. This was true on that date only; see the 2026-11-04 update below for the current state.
+Post-remediation score: **0 vulnerabilities** (`npm audit` clean) as of 2026-10-14. This was probably true on that date (the audit could not confirm it) and is not true now; see the 2026-11-04 update below for the current state.
 
 ---
 
@@ -74,7 +74,7 @@ Build: `npm run build` → exit 0 (TypeScript compilation clean)
 
 ## Update 2026-11-04: advisories published after the remediation
 
-The "0 vulnerabilities" result above was true on 2026-10-14 and is no longer true. GitHub published or reviewed new advisories afterwards (audit `docs/audit/2026-11-04-audit.md`, finding F3).
+The "0 vulnerabilities" result above was probably true on 2026-10-14 (the audit found the advisories were reviewed or published after that date) and is no longer true. GitHub published or reviewed new advisories afterwards (audit `docs/audit/2026-11-04-audit.md`, finding F3).
 
 ### Open on 2026-11-04 (`npm audit --omit=dev`, before the fixes below): 4 vulnerabilities (2 high, 2 moderate)
 
@@ -100,8 +100,10 @@ Severity: high
 Zod can exhaust memory while validating oversized constrained collections - https://github.com/advisories/GHSA-mrhx-c7xc-m3w5
 ```
 
-The fix is a major upgrade (zod 3.25.76 to 4.6.7), tracked as T3.5.7 and awaiting Diego's decision. Until then `npm audit --omit=dev` exits non-zero.
+The fix is a major upgrade (zod 3.25.76 to 4.6.7). The decision is T3.5.4 (awaiting Diego) and the upgrade is T3.5.7. Until then `npm audit --omit=dev` exits non-zero.
 
 ### Not covered by this log
 
 `pnpm-lock.yaml` was never remediated, and the Dockerfile installs from it (audit F4, F11). The Dockerfile path is not covered by the results above.
+
+The audit (F4) also found 11 vulnerable production packages in `pnpm-lock.yaml`, 1 of them critical (`proxy-addr@2.0.7`, GHSA-jqcg-44mw-7w3h). The Dockerfile installs from that lockfile, so the results above do not cover the Docker path.
