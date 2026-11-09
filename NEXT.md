@@ -4,13 +4,13 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 61% · Δ +0 since 2026-11-09 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @35339374
+Progress: 63% · Δ +0 since 2026-11-09 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @703d763b
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
-| I4 End product | 58 | 7/12 | in progress | E4.1, E4.2 |
+| I4 End product | 67 | 8/12 | in progress | E4.1, E4.2 |
 | I5 Review follow-ups 2026-11-04 | 14 | 1/7 | in progress | E5.1 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
@@ -20,7 +20,7 @@ Stage 1 of the 2026-11-09 order (`progress.mjs --run-ac --only`, 16:4x CET): T1.
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 27 (ready 6, queued 1, waiting 20) · verified this session: — · reopened: none · flat sessions: 0 · ledger @36
+State: blocked · left: 26 (ready 6, queued 0, waiting 20) · verified this session: — · reopened: none · flat sessions: 0 · ledger @37
 Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +4 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
