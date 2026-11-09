@@ -4,24 +4,34 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 71% · Δ +0 since 2026-11-09 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @5077b3ae
+Progress: 67% · Δ -4 since 2026-11-09 · scope 86 tasks (+1) · hours 3.1 · cost $147.95 · plan @c615067a
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
 | I4 End product | 75 | 9/12 | in progress | E4.2 |
-| I5 Review follow-ups 2026-11-04 | 86 | 6/7 | in progress | E5.1 |
+| I5 Review follow-ups 2026-11-04 | 43 | 6/8 | in progress | E5.1, E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
 Checked 2026-11-09 on seilaut-master: at 29bcc8c, `npm test` gave 94 tests, 92 pass, 0 fail, 2 todo. The merge of 874024a that followed changed only NEXT.md, PLAN.md and the ledger, so no code changed and the suite was not re-run. `wrangler whoami` says not authenticated. `gh api repos/seilaut/mcp-server-gsc` gives `dgusti59` push true (no real push tried).
 Stage 1 of the 2026-11-09 order (`progress.mjs --run-ac --only`, 16:4x CET): T1.3.3 passed and is ticked. T3.1.2 failed with exit 2: `guards.sh`, called from `~/.claude/skills/bootstrap/assets/`, now refuses to run unless it sits at `<repo>/scripts/ci/guards.sh` (a change in `~/.claude`, not in this repo). Its other two parts pass: gitleaks over `dist/` exits 0, and only `src/index.ts` reads `process.env`. iCloud had also removed 10 files under `node_modules/`; restore requested with `brctl download` on 2026-11-09, still arriving.
 
+Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
+- **Built, reviewed and ticked through `--run-ac`:** T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.2, T5.1.5, T5.1.1, T4.1.6. With T1.3.3 from Stage 1, that is 10 tasks.
+- **T4.1.6 moves the client from Webmasters v3 to Search Console v1.** Its first version had changed the OAuth scope to a string that is not a Google scope; the review caught it, the scope is back to `webmasters.readonly`, and a test now asserts it.
+- **Final whole-run review (opus):** 1 Important, fixed in one wave and re-reviewed. README now warns that `/mcp` answers anyone without `MCP_API_TOKEN`; CLAUDE.md names the test type-check; `truncateForError` no longer allocates in proportion to a huge input.
+- **Unfixed findings:** `docs/audit/2026-11-09-review-residuals.md` (1a15b91), tracked as T5.2.1.
+- **Incident:** from 18:33 to about 18:40 a stray `node_modules/node_modules` link (pointing at the funnel's packages, created by another agent's temporary worktree) broke every server test here; it was removed and the tests passed again.
+- **Tests:** the focused files pass at HEAD (the final reviewer ran fallback-errors 11, input-echo 5, searchconsole-v1 6, site-url 7, repo-config 2, quick-wins-rounding 3 plus 1 todo); both type-checks exit 0.
+- **Not run:** the full `npm test`, because this Mac's capacity rule held it. Expected: 122 tests, 119 pass, 0 fail, 3 todo.
+- **Nothing pushed.**
+
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 20 (ready 0, queued 0, waiting 20) · verified this session: — · reopened: none · flat sessions: 0 · ledger @43
-Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +4 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
+State: completely blocked · left: 21 (ready 0, queued 0, waiting 21) · verified this session: — · reopened: none · flat sessions: 0 · ledger @43
+Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +5 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
@@ -38,6 +48,8 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
 - 2026-11-04 — Diego approved the Phase 2 plan and all of the controller's recommendations (17:28). The autopilot line is not recorded: the approval guard needs it as his own message on a line of its own, and it arrived inside a sentence.
 - 2026-11-04 — Ruling (build phase): T4.1.1 keeps a fourth behaviour change. An undefined siteUrl and non-http schemes now get the same clear error in the fallback path, instead of a nonsense `https://<url>`. The first call still sends the user's input unchanged. If wrong, one rare input such as `example.com:8080` errors instead of falling back.
 - 2026-11-09 — Diego said yes to two things. (1) Merging the 2026-11-05 verify from GitHub: the sync rule asks because PLAN.md changed upstream; a throwaway rehearsal had no conflicts and kept all 133 ledger rows, and the real merge gave the same. (2) The order of work on seilaut-master: re-check T1.3.3 and T3.1.2, then build T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.2, T5.1.5, T5.1.1, T4.1.6. Uploading, merging to `master` and going live each need his separate yes. Plan (git-ignored, this Mac only): `~/.claude/plans/2026-11-09-master-three-projects.md`.
+
+- 2026-11-09 — **Diego: the build ran in an Opus chat as a one-time exception** ("Start and keep this model just for this exception"). Implementers were Sonnet; reviewers were Sonnet, Haiku or Opus by risk. The controller's rulings, each with what it costs if wrong, are in `docs/audit/2026-11-09-review-residuals.md` under "Recorded rulings".
 
 ## Blockers / awaiting you
 - T3.1.2's criterion no longer runs (domain: decision, awaiting: user). Found 2026-11-09 (Current position). Diego chooses one: put a copy of the guard at `scripts/ci/guards.sh`, the layout bootstrap uses (a code change, then the criterion passes as written); or change the criterion, which needs his line `- <date> — T3.1.2 criterion differs from the template: accepted by Diego: <AC>`.
@@ -58,6 +70,15 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
 - The Worker's /mcp answers `initialize` and `tools/list` with NO auth while MCP_API_TOKEN is unset. Confirmed on HEAD by the final review (run in Node; workerd was not run). Decide in T3.5.1 whether to delete the Worker or set the token (domain: security, awaiting: user).
 - If T4.2.1 grants the write scope, the permission fallback would submit a sitemap to a different property than the one asked for. Exclude submit_sitemap from the fallback first (domain: bug, awaiting: user).
 - engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).
+
+- **T5.2.1: rule on the 2026-11-09 review residuals** (domain: decision, awaiting: user). `docs/audit/2026-11-09-review-residuals.md` lists:
+  - 4 items to settle before any deploy: two live checks of the Search Console v1 calls, the open `/mcp` without a token, and T3.1.2's criterion;
+  - 1 open question, below;
+  - 35 follow-ups.
+  
+  Fix, accept or drop each item.
+- **Open question (domain: decision, awaiting: user):** `src/quick-wins.ts:30` and `:41` use `row.position || 0`, so a row without a position counts as position 0, and the default minimum of 4 then filters it out. Intended, or a bug? The test `test/quick-wins-rounding.test.ts:26` is a todo until you answer.
+- **Full suite not re-run since the morning of 2026-11-09** (domain: build, awaiting: none). Run `npm test` on seilaut-master when `bash ~/.claude/bin/capacity.sh` shows a heavy slot. Expected: 122 tests, 119 pass, 0 fail, 3 todo.
 
 ## Notes carried forward
 - On seilaut-new, Claude Code's `google-search-console` MCP server (local scope) ran `node dist/index.js` from this folder, with `GOOGLE_APPLICATION_CREDENTIALS` pointing at `~/.openclaw/credentials/gsc-service-account.json`. That file was missing there.
