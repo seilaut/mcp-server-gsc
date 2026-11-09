@@ -4,11 +4,10 @@ A Model Context Protocol (MCP) server providing comprehensive access to Google S
 
 ## Features
 
-- **Enhanced Search Analytics**: Retrieve up to 25,000 rows of performance data
-- **Advanced Filtering**: Support for regex patterns and multiple filter operators
-- **Quick Wins Detection**: Automatically identify optimization opportunities
-- **Rich Dimensions**: Query, page, country, device, and search appearance analysis
-- **Flexible Date Ranges**: Customizable reporting periods with historical data access
+- **Search analytics**: performance data from Search Console, up to 25,000 rows per request (default 1,000)
+- **Filters**: page, query, country and device filters, with the operators listed below
+- **Quick wins**: `detect_quick_wins`, or `enableQuickWins` on `enhanced_search_analytics`, lists queries that rank on page one or two but get few clicks
+- **Sites, sitemaps and URL inspection**: list sites, list, get and submit sitemaps, inspect a URL
 
 ### Sponsored by
 
@@ -20,15 +19,22 @@ A Model Context Protocol (MCP) server providing comprehensive access to Google S
 
 ## Prerequisites
 
-- Node.js 18 or later
+- Node.js 22 or later
 - Google Cloud Project with Search Console API enabled
 - Service Account credentials with Search Console access
 
 ## Installation
 
+Install this fork from source. The package of the same name on npm is the upstream project, not this fork, so do not install it from there.
+
 ```bash
-npm install mcp-server-gsc
+git clone https://github.com/seilaut/mcp-server-gsc.git
+cd mcp-server-gsc
+npm ci
+npm run build
 ```
+
+`npm ci` installs from `package-lock.json` (the lockfile to use; `pnpm-lock.yaml` is stale). The build writes `dist/index.js`, the server's entry point.
 
 ## Authentication Setup
 
@@ -52,18 +58,22 @@ To obtain Google Search Console API credentials:
 5. Grant access:
 
 - Open Search Console
-- Add the service account email (format: name@project.iam.gserviceaccount.com) as a property administrator
+- Add the service account email (format: name@project.iam.gserviceaccount.com) as a user of the property. The server requests a read-only scope, so the lowest permission level that lets you read the data is enough (property administrator is more than it needs)
 
 ## Usage
 
+The server reads its credentials from the `GOOGLE_APPLICATION_CREDENTIALS` environment variable. The value is either the path to a service account key file or the key JSON itself. The server requests the `webmasters.readonly` scope only.
+
 ### Claude Desktop Configuration
+
+Point `command` at Node and `args` at the `dist/index.js` you built (use the absolute path of your clone):
 
 ```json
 {
   "mcpServers": {
     "gsc": {
-      "command": "npx",
-      "args": ["-y", "mcp-server-gsc"],
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-server-gsc/dist/index.js"],
       "env": {
         "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/credentials.json"
       }
@@ -72,42 +82,100 @@ To obtain Google Search Console API credentials:
 }
 ```
 
+### Remote (Cloudflare Worker)
+
+`src/remote.ts` serves the same tools over HTTP at `/mcp` (health check at `/health`). It reads the `GOOGLE_CREDENTIALS` secret (same value format as above). If `MCP_API_TOKEN` is set, requests need that bearer token. `CORS_ORIGIN` sets the allowed origin (default `*`). Scripts: `npm run dev:remote`, `npm run deploy`.
+
+### Permission fallback
+
+When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against a related property (for example the domain property for a URL-prefix one). A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `list_sites` and `index_inspect` do not retry.
+
 ## Available Tools
+
+The server lists eight tools: `list_sites`, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins`, `index_inspect`, `list_sitemaps`, `get_sitemap` and `submit_sitemap`. Unknown parameters are ignored, not rejected. Invalid values (a bad date, an unlisted dimension) are rejected with an error.
+
+### list_sites
+
+List all sites in Google Search Console. Takes no parameters.
 
 ### search_analytics
 
-Get comprehensive search performance data from Google Search Console with enhanced analytics capabilities.
+Get search performance data from Google Search Console.
 
 **Required Parameters:**
 
 - `siteUrl`: Site URL (format: `http://www.example.com/` or `sc-domain:example.com`)
-- `startDate`: Start date (YYYY-MM-DD)
-- `endDate`: End date (YYYY-MM-DD)
+- `startDate`: Start date (YYYY-MM-DD, a real calendar day)
+- `endDate`: End date (YYYY-MM-DD, a real calendar day)
 
 **Optional Parameters:**
 
 - `dimensions`: Comma-separated list (`query`, `page`, `country`, `device`, `searchAppearance`, `date`)
 - `type`: Search type (`web`, `image`, `video`, `news`, `discover`, `googleNews`)
 - `aggregationType`: Aggregation method (`auto`, `byNewsShowcasePanel`, `byProperty`, `byPage`)
-- `rowLimit`: Maximum rows to return (default: 1000, max: 25000)
-- `dataState`: Data freshness (`all` or `final`, default: `final`)
+- `rowLimit`: Maximum rows to return (default: 1000, min: 1, max: 25000)
 
 **Filter Parameters:**
 
-- `pageFilter`: Filter by page URL (supports regex with `regex:` prefix)
-- `queryFilter`: Filter by search query (supports regex with `regex:` prefix)
-- `countryFilter`: Filter by country ISO 3166-1 alpha-3 code (e.g., `USA`, `CHN`)
-- `deviceFilter`: Filter by device type (`DESKTOP`, `MOBILE`, `TABLET`)
-- `searchAppearanceFilter`: Filter by search feature (e.g., `AMP_BLUE_LINK`, `AMP_TOP_STORIES`)
-- `filterOperator`: Operator for filters (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`)
+- `pageFilter`: Filter by page URL, compared using `filterOperator`
+- `queryFilter`: Filter by search query, compared using `filterOperator`
+- `countryFilter`: Filter by country ISO 3166-1 alpha-3 code (e.g., `USA`, `CHN`); always `equals`
+- `deviceFilter`: Filter by device type (`DESKTOP`, `MOBILE`, `TABLET`); always `equals`
+- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the server sends no operator and Search Console chooses.
 
-**Quick Wins Detection:**
+The regex operators pass your expression to Search Console as written. There is no `regex:` prefix: write the pattern itself.
 
-- `detectQuickWins`: Enable automatic detection of optimization opportunities (default: `false`)
-- `quickWinsConfig`: Configuration for quick wins detection:
-  - `positionRange`: Position range to consider (default: `[4, 20]`)
-  - `minImpressions`: Minimum impressions threshold (default: `100`)
-  - `minCtr`: Minimum CTR percentage (default: `1`)
+### enhanced_search_analytics
+
+Takes every parameter of `search_analytics`, and adds:
+
+- `regexFilter`: A regular expression matched against the query with `includingRegex`. It is applied only when `dimensions` includes `query`; otherwise it is silently ignored.
+- `enableQuickWins`: Add a `quickWins` list to the result (default: `false`). Added only when rows come back.
+- `quickWinsThresholds`: Optional object with `minImpressions` (default `50`), `maxCtr` (percentage, default `2`), `positionRangeMin` (default `4`) and `positionRangeMax` (default `10`).
+
+When `enableQuickWins` is on, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true whenever `regexFilter` was given, even if it was ignored for the reason above.
+
+### detect_quick_wins
+
+Finds queries that rank just off the top but earn few clicks. It always queries by `query` and `page` with up to 25,000 rows.
+
+**Required Parameters:**
+
+- `siteUrl`, `startDate`, `endDate`: as for `search_analytics`
+
+**Optional Parameters:**
+
+- `minImpressions`: Minimum impressions (default: `50`)
+- `maxCtr`: Maximum CTR as a percentage (default: `2`)
+- `positionRangeMin`: Minimum position (default: `4`)
+- `positionRangeMax`: Maximum position (default: `10`)
+
+The result lists `quickWins`, `totalOpportunities` and the `thresholds` used. Each quick win estimates the extra clicks at a 5% CTR.
+
+### index_inspect
+
+Inspect a URL to see if it is indexed or can be indexed.
+
+- `siteUrl` (required): the property, as in Search Console
+- `inspectionUrl` (required): the fully-qualified URL to inspect; must be under `siteUrl`
+- `languageCode` (optional): IETF BCP-47 code for the issue messages (default: `en-US`)
+
+### list_sitemaps
+
+- `siteUrl` (required): the site's URL, including protocol
+- `sitemapIndex` (optional): URL of a sitemap index to list
+
+### get_sitemap
+
+- `siteUrl` (required): the site's URL, including protocol
+- `feedpath` (required): URL of the sitemap
+
+### submit_sitemap
+
+- `siteUrl` (required): the site's URL, including protocol
+- `feedpath` (required): URL of the sitemap to add
+
+The server requests only the read-only Search Console scope (`webmasters.readonly`), and I have not checked whether Google accepts a sitemap submission under it. Treat `submit_sitemap` as untested.
 
 **Example - Basic Query:**
 
@@ -121,7 +189,7 @@ Get comprehensive search performance data from Google Search Console with enhanc
 }
 ```
 
-**Example - Advanced Filtering with Regex:**
+**Example - Regex Filter (enhanced_search_analytics):**
 
 ```json
 {
@@ -129,27 +197,23 @@ Get comprehensive search performance data from Google Search Console with enhanc
   "startDate": "2024-01-01",
   "endDate": "2024-01-31",
   "dimensions": "page,query",
-  "queryFilter": "regex:(AI|machine learning|ML)",
-  "filterOperator": "includingRegex",
+  "regexFilter": "(AI|machine learning|ML)",
   "deviceFilter": "MOBILE",
   "rowLimit": 10000
 }
 ```
 
-**Example - Quick Wins Detection:**
+**Example - Quick Wins (detect_quick_wins):**
 
 ```json
 {
   "siteUrl": "https://example.com",
   "startDate": "2024-01-01",
   "endDate": "2024-01-31",
-  "dimensions": "query,page",
-  "detectQuickWins": true,
-  "quickWinsConfig": {
-    "positionRange": [4, 15],
-    "minImpressions": 500,
-    "minCtr": 2
-  }
+  "minImpressions": 500,
+  "maxCtr": 2,
+  "positionRangeMin": 4,
+  "positionRangeMax": 15
 }
 ```
 
@@ -159,4 +223,4 @@ MIT
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+Contributions are welcome. See `CLAUDE.md` for the install, type-check and test commands.
