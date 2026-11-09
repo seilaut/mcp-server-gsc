@@ -4,6 +4,7 @@ import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
 import { applyRegexFilter } from './request-body.js';
 import { resolveCredentialConfig } from './credentials.js';
 import { fallbackSiteUrls } from './site-url.js';
+import type { PermissionFallbackError } from './fallback-labels.js';
 
 type SearchanalyticsQueryRequest =
   webmasters_v3.Params$Resource$Searchanalytics$Query['requestBody'];
@@ -55,7 +56,13 @@ export class SearchConsoleService {
       return await operation();
     } catch (err) {
       if (err instanceof Error && err.message.toLowerCase().includes('permission')) {
-        const [candidate] = fallbackSiteUrls(siteUrl);
+        let candidate: string | undefined;
+        try {
+          [candidate] = fallbackSiteUrls(siteUrl);
+        } catch (urlErr) {
+          // Keep Google's permission error reachable; the caller still sees the siteUrl message.
+          throw urlErr instanceof Error ? new Error(urlErr.message, { cause: err }) : urlErr;
+        }
         if (candidate === undefined) {
           throw err;
         }
@@ -64,11 +71,14 @@ export class SearchConsoleService {
           result = await fallbackOperation(candidate);
         } catch (fallbackErr) {
           if (fallbackErr instanceof Error) {
+            const typed: PermissionFallbackError = fallbackErr;
             // gaxios always sets its own cause (API detail), so overwrite; keep it reachable.
-            if (fallbackErr.cause !== undefined) {
-              (fallbackErr as Error & { fallbackCause?: unknown }).fallbackCause = fallbackErr.cause;
+            if (typed.cause !== undefined) {
+              typed.fallbackCause = typed.cause;
             }
-            fallbackErr.cause = err;
+            typed.cause = err;
+            typed.requestedSiteUrl = siteUrl ?? undefined;
+            typed.answeredSiteUrl = candidate;
           }
           throw fallbackErr;
         }

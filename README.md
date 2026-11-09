@@ -88,7 +88,7 @@ Point `command` at Node and `args` at the `dist/index.js` you built (use the abs
 
 ### Permission fallback
 
-When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. The exception is `detect_quick_wins`: when the fallback returns no rows, it returns only a "No data available" message, without those fields. `list_sites` and `index_inspect` do not retry.
+When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `detect_quick_wins` carries the same three fields on its "No data available" message when the fallback returned no rows. If the retry itself fails, the error keeps Google's original permission error as its `cause` and its message names the property you asked for as well as the one retried. `list_sites` and `index_inspect` do not retry.
 
 ## Available Tools
 
