@@ -4,7 +4,7 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 67% · Δ -4 since 2026-11-09 · scope 86 tasks (+1) · hours 3.1 · cost $147.95 · plan @c615067a
+Progress: 67% · Δ +0 since 2026-11-09 · scope 86 tasks (+0) · hours 3.1 · cost $147.95 · plan @c615067a
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
@@ -30,10 +30,10 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 21 (ready 0, queued 0, waiting 21) · verified this session: — · reopened: none · flat sessions: 0 · ledger @43
+State: completely blocked · left: 21 (ready 0, queued 0, waiting 21) · verified this session: T1.3.3, T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.5, T5.1.2, T5.1.1, T4.1.6 · reopened: none · flat sessions: 0 · ledger @43
 Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +5 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
 <!-- direction:end -->
-Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
+Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
 ## Decisions
 - 2026-11-04 — Baselined with `/next baseline` on Diego's yes (migration Task 27). Security tasks that need staging, uploads or a rate-limit decision were dropped (reasons in PLAN.md).
@@ -95,14 +95,16 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
 - `env -u GOOGLE_APPLICATION_CREDENTIALS node dist/index.js 2>&1 | grep -q 'GOOGLE_APPLICATION_CREDENTIALS environment variable is required'` (T1.1.3)
 - `npm audit --omit=dev` (only zod expected until T3.5.4)
 
-## Last session — 2026-11-04
-On seilaut-master the controller ran from 16:20 to 20:00 CET. The repo was cloned, and `work/2026-11-04` was checked out as seilaut-new handed it over (baseline cb86294).
-- Phase 1 audit: docs/audit/2026-11-04-audit.md, commit 58474c9.
-- Phase 2 plan: commit b09eaed. Diego approved it at 17:28.
-- Build: Sonnet implementers worked one task at a time, an Opus reviewer checked each task, and ticks came only from `progress.mjs --run-ac --only`.
-- The Stop hook (bin/on-stop.sh) also ticks a started task whose fast criterion passes at the end of a controller turn, so some ticks landed before their review finished. Every such task was reviewed afterwards.
-- The audit's "crash" from the jwa override was checked and is not a crash: jwa loads the module only when crypto.timingSafeEqual is missing.
-- One spawn-based handshake test flaked once under load (75 of 76 passing): its 15-second child timeout was tight (8–9 s observed). It was raised to 45 s in 4379c1b (test/handshake.test.ts:13).
+## Last session — 4409796e (seilaut-master), 2026-11-09
+Opus controller session, a one-time exception Diego gave ("Start and keep this model just for this exception"), from 16:26 to about 20:00 CET, on Diego's approved plan `~/.claude/plans/2026-11-09-master-three-projects.md` (git-ignored, this Mac only; its run log is the `.sdd/progress.md` beside it, kept because this repo has no HISTORY.md for its rulings).
+
+- **Morning merge:** on Diego's yes, it merged seilaut-new's 2026-11-05 verify (no conflicts). It re-ran T1.3.3, which was ticked, and T3.1.2, which failed because the guard refuses to run outside `scripts/ci/`.
+- **Build:** Sonnet implementers built T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.2, T5.1.5, T5.1.1 and T4.1.6, each with its own review.
+  - T4.1.6's first version set an OAuth scope Google does not have. The review caught it, and it was fixed.
+  - From 18:33 to about 18:40, a stray `node_modules/node_modules` link made by another agent's temporary worktree broke the server tests. It was removed.
+- **Final review:** a final whole-run review led to one fix wave (`5cae941..076ee3a`). The unfixed findings and the missing-position question went into `docs/audit/2026-11-09-review-residuals.md` (T5.2.1).
+- **Tests:** `npm test` at 8a189e6 gave 123 tests, 120 pass, 0 fail, 3 todo.
+- **Not pushed.** It stopped at Diego's report; the push waits for his word.
 
 ## History
 Older sessions → `HISTORY.md` (not auto-read). Entries are written by the SessionEnd hook; the agent fills Asked, Decided and Shipped.
