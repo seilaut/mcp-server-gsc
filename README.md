@@ -84,7 +84,7 @@ Point `command` at Node and `args` at the `dist/index.js` you built (use the abs
 
 ### Remote (Cloudflare Worker)
 
-`src/remote.ts` serves the same tools over HTTP at `/mcp` (health check at `/health`). It reads the `GOOGLE_CREDENTIALS` secret (same value format as above). If `MCP_API_TOKEN` is set, requests need that bearer token. `CORS_ORIGIN` sets the allowed origin (default `*`). Scripts: `npm run dev:remote`, `npm run deploy`.
+`src/remote.ts` serves the same tools over HTTP at `/mcp` (health check at `/health`). It reads the `GOOGLE_CREDENTIALS` secret (same value format as above). If `MCP_API_TOKEN` is set, requests need that bearer token. If it is not set, `/mcp` has no authentication: anyone who finds the URL can call the tools and read every property the service account can see, so set the token before you deploy. Whether to keep the Worker at all is still an open decision (T3.5.1). `CORS_ORIGIN` sets the allowed origin (default `*`). Scripts: `npm run dev:remote`, `npm run deploy`.
 
 ### Permission fallback
 
