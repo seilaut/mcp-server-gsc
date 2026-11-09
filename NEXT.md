@@ -4,23 +4,24 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 55% · Δ +0 since 2026-11-05 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @9611a42c
+Progress: 58% · Δ +0 since 2026-11-09 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @dbf6daf7
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
-| I1 Install, start and prove it | 89 | 6/7 | in progress | E1.3 |
+| I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
 | I4 End product | 50 | 6/12 | in progress | E4.1, E4.2 |
-| I5 Review follow-ups 2026-11-04 | 0 | 0/7 | not started | E5.1 |
+| I5 Review follow-ups 2026-11-04 | 0 | 0/7 | in progress | E5.1 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
 Checked 2026-11-09 on seilaut-master: at 29bcc8c, `npm test` gave 94 tests, 92 pass, 0 fail, 2 todo. The merge of 874024a that followed changed only NEXT.md, PLAN.md and the ledger, so no code changed and the suite was not re-run. `wrangler whoami` says not authenticated. `gh api repos/seilaut/mcp-server-gsc` gives `dgusti59` push true (no real push tried).
+Stage 1 of the 2026-11-09 order (`progress.mjs --run-ac --only`, 16:4x CET): T1.3.3 passed and is ticked. T3.1.2 failed with exit 2: `guards.sh`, called from `~/.claude/skills/bootstrap/assets/`, now refuses to run unless it sits at `<repo>/scripts/ci/guards.sh` (a change in `~/.claude`, not in this repo). Its other two parts pass: gitleaks over `dist/` exits 0, and only `src/index.ts` reads `process.env`. iCloud had also removed 10 files under `node_modules/`; restore requested with `brctl download` on 2026-11-09, still arriving.
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 30 (ready 10, queued 1, waiting 19) · verified this session: — · reopened: none · flat sessions: 0 · ledger @33
-Reasons: waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more; waiting on Diego (blocker): T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1) +3 more
+State: blocked · left: 29 (ready 8, queued 1, waiting 20) · verified this session: — · reopened: none · flat sessions: 0 · ledger @34
+Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +4 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
@@ -39,6 +40,7 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
 - 2026-11-09 — Diego said yes to two things. (1) Merging the 2026-11-05 verify from GitHub: the sync rule asks because PLAN.md changed upstream; a throwaway rehearsal had no conflicts and kept all 133 ledger rows, and the real merge gave the same. (2) The order of work on seilaut-master: re-check T1.3.3 and T3.1.2, then build T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.2, T5.1.5, T5.1.1, T4.1.6. Uploading, merging to `master` and going live each need his separate yes. Plan (git-ignored, this Mac only): `~/.claude/plans/2026-11-09-master-three-projects.md`.
 
 ## Blockers / awaiting you
+- T3.1.2's criterion no longer runs (domain: decision, awaiting: user). Found 2026-11-09 (Current position). Diego chooses one: put a copy of the guard at `scripts/ci/guards.sh`, the layout bootstrap uses (a code change, then the criterion passes as written); or change the criterion, which needs his line `- <date> — T3.1.2 criterion differs from the template: accepted by Diego: <AC>`.
 - T1.3.3 reopened 2026-11-05 by `--run-ac` on seilaut-new's checkout, which is what "this checkout" and "I" mean in this line (domain: build, awaiting: none). Not yet re-run on seilaut-master; it is first in the 2026-11-09 order. The lockfile is fixed, but `node_modules/buffer-equal-constant-time` is still a dangling symlink to `jwa/patches/...` from the 2026-10-14 install, so the node_modules half of the criterion fails. `npm ci` should clear it; I did not run it (no installs in a verify). The earlier note that all 18 ticks held was true only on seilaut-master's node_modules.
 - Decisions only Diego can make. None of them blocks tonight's tasks; the tasks that depend on them carry `after:`.
   - T3.5.1: the Worker (delete or keep; is one deployed?)
