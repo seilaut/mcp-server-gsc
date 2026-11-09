@@ -26,11 +26,11 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 - **Incident:** from 18:33 to about 18:40 a stray `node_modules/node_modules` link (pointing at the funnel's packages, created by another agent's temporary worktree) broke every server test here; it was removed and the tests passed again.
 - **Tests:** the focused files pass at HEAD (the final reviewer ran fallback-errors 11, input-echo 5, searchconsole-v1 6, site-url 7, repo-config 2, quick-wins-rounding 3 plus 1 todo); both type-checks exit 0.
 - **Full suite:** `npm test` at 8a189e6 on 2026-11-09, about 19:50 CET: 123 tests, 120 pass, 0 fail, 3 todo.
-- **Nothing pushed.**
+- **Pushed to GitHub on Diego's word on 2026-11-09 at 20:00 CET (`origin/work/2026-11-04`), after clean `key-scan.sh --push` and `gitleaks` runs over every unpushed commit.** Not deployed.
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 21 (ready 0, queued 0, waiting 21) · verified this session: T1.3.3, T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.5, T5.1.2, T5.1.1, T4.1.6 · reopened: none · flat sessions: 0 · ledger @43
+State: completely blocked · left: 21 (ready 0, queued 0, waiting 21) · verified this session: — · reopened: none · flat sessions: 0 · ledger @43
 Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +5 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
@@ -104,7 +104,7 @@ Opus controller session, a one-time exception Diego gave ("Start and keep this m
   - From 18:33 to about 18:40, a stray `node_modules/node_modules` link made by another agent's temporary worktree broke the server tests. It was removed.
 - **Final review:** a final whole-run review led to one fix wave (`5cae941..076ee3a`). The unfixed findings and the missing-position question went into `docs/audit/2026-11-09-review-residuals.md` (T5.2.1).
 - **Tests:** `npm test` at 8a189e6 gave 123 tests, 120 pass, 0 fail, 3 todo.
-- **Not pushed.** It stopped at Diego's report; the push waits for his word.
+- **Pushed to GitHub on Diego's word on 2026-11-09 at 20:00 CET (`origin/work/2026-11-04`), after clean `key-scan.sh --push` and `gitleaks` runs over every unpushed commit.**
 
 ## History
 Older sessions → `HISTORY.md` (not auto-read). Entries are written by the SessionEnd hook; the agent fills Asked, Decided and Shipped.
