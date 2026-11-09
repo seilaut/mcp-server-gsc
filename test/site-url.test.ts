@@ -17,11 +17,11 @@ test('http URL-prefix property falls back to the domain property (current behavi
 
 test('a bare host throws a clear Error naming both accepted forms, not a TypeError', () => {
   assert.throws(
-    () => fallbackSiteUrls('example.com'),
+    () => fallbackSiteUrls('mysite.test'),
     (err: unknown) =>
       err instanceof Error &&
       !(err instanceof TypeError) &&
-      err.message.includes('example.com') &&
+      err.message.includes('mysite.test') &&
       err.message.includes('sc-domain:') &&
       err.message.includes('https://'),
   );

@@ -4,19 +4,23 @@ import { SearchAnalyticsSchema, EnhancedSearchAnalyticsSchema } from '../src/sch
 
 const base = { siteUrl: 'sc-domain:example.com', startDate: '2026-01-01', endDate: '2026-01-31' };
 const ok = (extra: Record<string, unknown> = {}) => SearchAnalyticsSchema.safeParse({ ...base, ...extra });
+// Parse input that must be valid; a failure reports the schema's issues instead of a TypeError on undefined data.
+const parsed = (extra: Record<string, unknown> = {}) => {
+  const r = ok(extra);
+  if (!r.success) assert.fail(`expected valid input, got: ${r.error.message}`);
+  return r.data;
+};
 
 test('dimensions: every allowed value is accepted and split on commas', () => {
   for (const d of ['query', 'page', 'country', 'device', 'date', 'searchAppearance']) {
-    const r = ok({ dimensions: d });
-    assert.equal(r.success, true, d);
-    assert.deepEqual(r.data!.dimensions, [d]);
+    assert.deepEqual(parsed({ dimensions: d }).dimensions, [d], d);
   }
-  assert.deepEqual(ok({ dimensions: 'query, page ,date' }).data!.dimensions, ['query', 'page', 'date']);
+  assert.deepEqual(parsed({ dimensions: 'query, page ,date' }).dimensions, ['query', 'page', 'date']);
 });
 
 test('dimensions: omitted is accepted; unknown, empty or wrong-case values are rejected', () => {
   assert.equal(ok().success, true);
-  assert.equal(ok().data!.dimensions, undefined);
+  assert.equal(parsed().dimensions, undefined);
   for (const d of ['bogus', 'query,bogus', '', 'Query', 'query,,page']) {
     assert.equal(ok({ dimensions: d }).success, false, JSON.stringify(d));
   }
@@ -24,7 +28,7 @@ test('dimensions: omitted is accepted; unknown, empty or wrong-case values are r
 });
 
 test('rowLimit: defaults to 1000', () => {
-  assert.equal(ok().data!.rowLimit, 1000);
+  assert.equal(parsed().rowLimit, 1000);
 });
 
 test('rowLimit: bounds are 1..25000 inclusive', () => {

@@ -105,8 +105,7 @@ test('list_sites works with arguments omitted, and with an empty object', async 
 test('other tools still reject omitted arguments', async () => {
   const h = await connect();
   try {
-    const res: any = await h.client.callTool({ name: 'search_analytics' }).catch((e) => ({ isError: true, e }));
-    assert.equal(res.isError, true);
+    await assert.rejects(() => h.client.callTool({ name: 'search_analytics' }), /Arguments are required/);
   } finally {
     await h.close();
   }

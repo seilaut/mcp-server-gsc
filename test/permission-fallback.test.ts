@@ -21,7 +21,8 @@ function fakeClient(behaviour: (siteUrl: string) => unknown, calls: Call[]) {
 
 function serviceWith(client: unknown) {
   const svc = new SearchConsoleService('/nonexistent/key.json');
-  (svc as any).getWebmasters = async () => client;
+  // getWebmasters is private; name the one member the test replaces instead of casting to any.
+  (svc as unknown as { getWebmasters: () => Promise<unknown> }).getWebmasters = async () => client;
   return svc;
 }
 
