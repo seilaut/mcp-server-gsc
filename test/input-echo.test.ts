@@ -72,3 +72,15 @@ test('zod enum error from the server does not echo a long invalid value', async 
     await server.close();
   }
 });
+
+test('truncation never leaves half of an emoji (lone surrogate) at the cut', () => {
+  // 4-byte characters: a UTF-16 slice at an odd unit count would split one.
+  for (const prefix of ['', 'a']) {
+    const input = prefix + '\u{1F600}'.repeat(300);
+    assert.throws(
+      () => fallbackSiteUrls(input),
+      (err: unknown) => err instanceof Error && !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(err.message) && err.message.length < MAX_ERROR_LENGTH,
+      JSON.stringify(prefix),
+    );
+  }
+});

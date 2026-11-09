@@ -6,9 +6,15 @@ const ACCEPTED_FORMS =
 
 const MAX_ECHO = 100;
 
-/** Shorten user input before it goes into an error message. */
+/**
+ * Shorten user input before it goes into an error message.
+ * Cuts on a code-point boundary so a surrogate pair is never split.
+ */
 export function truncateForError(value: string, max: number = MAX_ECHO): string {
-  return value.length <= max ? value : `${value.slice(0, max)}... (${value.length} characters)`;
+  if (value.length <= max) return value;
+  const points = Array.from(value);
+  if (points.length <= max) return value;
+  return `${points.slice(0, max).join('')}... (${points.length} characters)`;
 }
 
 /**
