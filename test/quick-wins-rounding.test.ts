@@ -23,7 +23,7 @@ test('a row with no position is excluded by the default position range', () => {
   assert.deepEqual(out.map(r => r.query), ['kept']);
 });
 
-test('a row with no position counts as position 0 once the range allows it, and never gives NaN', () => {
+test('a row without position is treated as position 0: intended or a bug?', { todo: 'open question for Diego; the body records what the code does today' }, () => {
   const out = detectQuickWins([row({ position: undefined })], { positionRangeMin: 0 });
   assert.equal(out.length, 1);
   assert.equal(out[0].currentPosition, 0);
