@@ -4,14 +4,14 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 65% · Δ +0 since 2026-11-09 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @528e13b6
+Progress: 66% · Δ +0 since 2026-11-09 · scope 85 tasks (+0) · hours 3.1 · cost $147.95 · plan @229dee73
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
 | I4 End product | 67 | 8/12 | in progress | E4.1, E4.2 |
-| I5 Review follow-ups 2026-11-04 | 43 | 3/7 | in progress | E5.1 |
+| I5 Review follow-ups 2026-11-04 | 57 | 4/7 | in progress | E5.1 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
@@ -20,7 +20,7 @@ Stage 1 of the 2026-11-09 order (`progress.mjs --run-ac --only`, 16:4x CET): T1.
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 24 (ready 4, queued 0, waiting 20) · verified this session: — · reopened: none · flat sessions: 0 · ledger @39
+State: blocked · left: 23 (ready 3, queued 0, waiting 20) · verified this session: — · reopened: none · flat sessions: 0 · ledger @40
 Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +4 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
