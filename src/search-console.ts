@@ -20,7 +20,7 @@ export class SearchConsoleService {
   constructor(credentials: string) {
     this.auth = new google.auth.GoogleAuth({
       ...resolveCredentialConfig(credentials),
-      scopes: ['https://www.googleapis.com/auth/searchConsole.readonly'],
+      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
     });
   }
 

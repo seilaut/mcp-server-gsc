@@ -61,3 +61,10 @@ for (const [name, resource, call] of calls) {
     });
   });
 }
+
+test('the service still requests only the webmasters.readonly scope', () => {
+  // Construct without replacing auth: the scope is what Google would be asked to authorise.
+  const svc = new SearchConsoleService('/nonexistent/key.json');
+  const { scopes } = (svc as unknown as { auth: { scopes: unknown } }).auth;
+  assert.deepEqual(scopes, ['https://www.googleapis.com/auth/webmasters.readonly']);
+});
