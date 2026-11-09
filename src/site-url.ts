@@ -12,9 +12,14 @@ const MAX_ECHO = 100;
  */
 export function truncateForError(value: string, max: number = MAX_ECHO): string {
   if (value.length <= max) return value;
-  const points = Array.from(value);
-  if (points.length <= max) return value;
-  return `${points.slice(0, max).join('')}... (${points.length} characters)`;
+  // Count code points by iterating (no allocation that grows with the input).
+  let total = 0;
+  for (const _ of value) total++;
+  if (total <= max) return value;
+  // `max` code points are at most 2 * max code units, so a bounded prefix is
+  // enough to cut from; Array.from then allocates in proportion to `max`.
+  const prefix = Array.from(value.slice(0, max * 2)).slice(0, max).join('');
+  return `${prefix}... (${total} characters)`;
 }
 
 /**

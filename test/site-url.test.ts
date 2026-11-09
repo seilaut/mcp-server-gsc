@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fallbackSiteUrls } from '../src/site-url.ts';
+import { fallbackSiteUrls, truncateForError } from '../src/site-url.ts';
 
 test('sc-domain: input has no fallback candidates and is never rewritten', () => {
   assert.deepEqual(fallbackSiteUrls('sc-domain:example.com'), []);
@@ -40,4 +40,14 @@ test('a missing site URL throws a clear Error', () => {
     () => fallbackSiteUrls(undefined),
     (err: unknown) => err instanceof Error && !(err instanceof TypeError),
   );
+});
+
+test('truncateForError: a 1,000,000-character input with an emoji at the cut stays well formed and capped', () => {
+  const emoji = '\u{1F600}';
+  // 99 ASCII characters, then an emoji straddling code unit 100, then a very long tail.
+  const input = 'a'.repeat(99) + emoji + 'b'.repeat(1_000_000);
+  const out = truncateForError(input);
+  assert.equal(out, `${'a'.repeat(99)}${emoji}... (${99 + 1 + 1_000_000} characters)`);
+  assert.ok(!/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(out), 'no lone surrogate');
+  assert.ok(out.length < 150);
 });
