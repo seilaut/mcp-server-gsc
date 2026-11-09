@@ -4,10 +4,10 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 58% · Δ +0 since 2026-11-04 · scope 85 tasks (+0) · hours 0.0 · cost $0.00 · plan @0e239aab
+Progress: 55% · Δ +0 since 2026-11-05 · scope 85 tasks (+0) · hours 0.0 · cost $0.00 · plan @9611a42c
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
-| I1 Install, start and prove it | 100 | 7/7 | complete | — |
+| I1 Install, start and prove it | 89 | 6/7 | in progress | E1.3 |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
 | I4 End product | 50 | 6/12 | in progress | E4.1, E4.2 |
@@ -18,7 +18,7 @@ On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on 
 
 ## Direction
 <!-- direction:begin -->
-State: forward · verified this session: T1.1.3, T1.1.1, T1.2.1, T3.1.5, T3.1.3, T1.2.2, T1.3.1, T1.3.3, T1.3.2, T2.2.1, T2.2.2, T2.2.3, T4.1.1, T4.1.2, T4.1.3, T4.1.4, T4.2.4, T4.1.5 · reopened: none · flat sessions: 0 · ledger @31
+State: forward · verified this session: — · reopened: none · flat sessions: 0 · ledger @32
 <!-- direction:end -->
 Rule: when the state is circling, stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written.
 
@@ -36,6 +36,7 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
 - 2026-11-04 — Ruling (build phase): T4.1.1 keeps a fourth behaviour change. An undefined siteUrl and non-http schemes now get the same clear error in the fallback path, instead of a nonsense `https://<url>`. The first call still sends the user's input unchanged. If wrong, one rare input such as `example.com:8080` errors instead of falling back.
 
 ## Blockers / awaiting you
+- T1.3.3 reopened 2026-11-05 by `--run-ac` on this checkout (domain: build, awaiting: none). The lockfile is fixed, but `node_modules/buffer-equal-constant-time` is still a dangling symlink to `jwa/patches/...` from the 2026-10-14 install, so the node_modules half of the criterion fails. `npm ci` should clear it; I did not run it (no installs in a verify). The earlier note that all 18 ticks held was true only on seilaut-master's node_modules.
 - Decisions only Diego can make. None of them blocks tonight's tasks; the tasks that depend on them carry `after:`.
   - T3.5.1: the Worker (delete or keep; is one deployed?)
   - T3.5.2: the service-account key

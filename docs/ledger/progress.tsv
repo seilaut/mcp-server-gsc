@@ -127,3 +127,7 @@ ts	session	event	id	detail	model	evidence
 2026-11-04T20:40:04.050Z	ca67b745-6c13-45ca-8719-7a6130596400	task_added	T5.1.6	open		
 2026-11-04T20:40:04.050Z	ca67b745-6c13-45ca-8719-7a6130596400	task_added	T5.1.7	open		
 2026-11-07T01:19:35.472Z	ca67b745-6c13-45ca-8719-7a6130596400	session_end		files_changed=0;commits=0;duration_s=11086;span_s=147715;tokens_in=3992;tokens_out=2202079;tokens_cache_read=355117863;tokens_cache_write=8407027;cost_usd=147.95;models=claude-opus-5-5+claude-sonnet-5-5;unpriced=;reason=other;transcript_version=2.1.318;subagent_files=79;operator_turns=11;runner=claude-code;prices_as_of=2026-10-05;orphan=1		
+2026-11-05T00:24:27.412Z	cf1bcec7-56af-43ae-9536-1e29a2ebc8e6	task_reopened	T1.3.3	exit 1		
+2026-11-05T00:24:27.416Z	cf1bcec7-56af-43ae-9536-1e29a2ebc8e6	rollup		pct=55;total=85;done=17		
+2026-11-05T00:24:40.709Z	cf1bcec7-56af-43ae-9536-1e29a2ebc8e6	direction		state=forward		
+2026-11-05T00:25:45.790Z	local	rollup		pct=55;total=85;done=17		
