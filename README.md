@@ -88,7 +88,7 @@ Point `command` at Node and `args` at the `dist/index.js` you built (use the abs
 
 ### Permission fallback
 
-When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against a related property (for example the domain property for a URL-prefix one). A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `list_sites` and `index_inspect` do not retry.
+When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. The exception is `detect_quick_wins`: when the fallback returns no rows, it returns only a "No data available" message, without those fields. `list_sites` and `index_inspect` do not retry.
 
 ## Available Tools
 
@@ -121,7 +121,7 @@ Get search performance data from Google Search Console.
 - `queryFilter`: Filter by search query, compared using `filterOperator`
 - `countryFilter`: Filter by country ISO 3166-1 alpha-3 code (e.g., `USA`, `CHN`); always `equals`
 - `deviceFilter`: Filter by device type (`DESKTOP`, `MOBILE`, `TABLET`); always `equals`
-- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the server sends no operator and Search Console chooses.
+- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the server sends no operator.
 
 The regex operators pass your expression to Search Console as written. There is no `regex:` prefix: write the pattern itself.
 
@@ -133,7 +133,7 @@ Takes every parameter of `search_analytics`, and adds:
 - `enableQuickWins`: Add a `quickWins` list to the result (default: `false`). Added only when rows come back.
 - `quickWinsThresholds`: Optional object with `minImpressions` (default `50`), `maxCtr` (percentage, default `2`), `positionRangeMin` (default `4`) and `positionRangeMax` (default `10`).
 
-When `enableQuickWins` is on, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true whenever `regexFilter` was given, even if it was ignored for the reason above.
+When `enableQuickWins` is on and rows come back, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true whenever `regexFilter` was given, even if it was ignored for the reason above.
 
 ### detect_quick_wins
 
@@ -175,7 +175,7 @@ Inspect a URL to see if it is indexed or can be indexed.
 - `siteUrl` (required): the site's URL, including protocol
 - `feedpath` (required): URL of the sitemap to add
 
-The server requests only the read-only Search Console scope (`webmasters.readonly`), and I have not checked whether Google accepts a sitemap submission under it. Treat `submit_sitemap` as untested.
+The server requests only the read-only Search Console scope (`webmasters.readonly`). `submit_sitemap` is untested under that scope, and Google may refuse it.
 
 **Example - Basic Query:**
 
