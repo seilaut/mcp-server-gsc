@@ -25,7 +25,7 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 - **Unfixed findings:** `docs/audit/2026-11-09-review-residuals.md` (1a15b91), tracked as T5.2.1.
 - **Incident:** from 18:33 to about 18:40 a stray `node_modules/node_modules` link (pointing at the funnel's packages, created by another agent's temporary worktree) broke every server test here; it was removed and the tests passed again.
 - **Tests:** the focused files pass at HEAD (the final reviewer ran fallback-errors 11, input-echo 5, searchconsole-v1 6, site-url 7, repo-config 2, quick-wins-rounding 3 plus 1 todo); both type-checks exit 0.
-- **Not run:** the full `npm test`, because this Mac's capacity rule held it. Expected: 122 tests, 119 pass, 0 fail, 3 todo.
+- **Full suite:** `npm test` at 8a189e6 on 2026-11-09, about 19:50 CET: 123 tests, 120 pass, 0 fail, 3 todo.
 - **Nothing pushed.**
 
 ## Direction
@@ -78,7 +78,6 @@ Rule: when the state is circling, stop building. Write the loop into Decisions (
   
   Fix, accept or drop each item.
 - **Open question (domain: decision, awaiting: user):** `src/quick-wins.ts:30` and `:41` use `row.position || 0`, so a row without a position counts as position 0, and the default minimum of 4 then filters it out. Intended, or a bug? The test `test/quick-wins-rounding.test.ts:26` is a todo until you answer.
-- **Full suite not re-run since the morning of 2026-11-09** (domain: build, awaiting: none). Run `npm test` on seilaut-master when `bash ~/.claude/bin/capacity.sh` shows a heavy slot. Expected: 122 tests, 119 pass, 0 fail, 3 todo.
 
 ## Notes carried forward
 - On seilaut-new, Claude Code's `google-search-console` MCP server (local scope) ran `node dist/index.js` from this folder, with `GOOGLE_APPLICATION_CREDENTIALS` pointing at `~/.openclaw/credentials/gsc-service-account.json`. That file was missing there.
