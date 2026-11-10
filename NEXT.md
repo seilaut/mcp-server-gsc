@@ -1,6 +1,6 @@
 # NEXT — mcp-server-gsc-fork status
 
-**Updated:** 2026-11-09 · **Plan:** PLAN.md · **Spec:** — · **Live:** unknown (stdio server; a Cloudflare Worker entry exists, deployment unverified)
+**Updated:** 2026-11-10 · **Plan:** PLAN.md · **Spec:** — · **Live:** unknown (stdio server; a Cloudflare Worker entry exists, deployment unverified)
 
 ## Current position
 <!-- progress:begin -->
@@ -95,16 +95,8 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - `env -u GOOGLE_APPLICATION_CREDENTIALS node dist/index.js 2>&1 | grep -q 'GOOGLE_APPLICATION_CREDENTIALS environment variable is required'` (T1.1.3)
 - `npm audit --omit=dev` (only zod expected until T3.5.4)
 
-## Last session — 4409796e (seilaut-master), 2026-11-09
-Opus controller session, a one-time exception Diego gave ("Start and keep this model just for this exception"), from 16:26 to about 20:00 CET, on Diego's approved plan `~/.claude/plans/2026-11-09-master-three-projects.md` (git-ignored, this Mac only; its run log is the `.sdd/progress.md` beside it, kept because this repo has no HISTORY.md for its rulings).
-
-- **Morning merge:** on Diego's yes, it merged seilaut-new's 2026-11-05 verify (no conflicts). It re-ran T1.3.3, which was ticked, and T3.1.2, which failed because the guard refuses to run outside `scripts/ci/`.
-- **Build:** Sonnet implementers built T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.2, T5.1.5, T5.1.1 and T4.1.6, each with its own review.
-  - T4.1.6's first version set an OAuth scope Google does not have. The review caught it, and it was fixed.
-  - From 18:33 to about 18:40, a stray `node_modules/node_modules` link made by another agent's temporary worktree broke the server tests. It was removed.
-- **Final review:** a final whole-run review led to one fix wave (`5cae941..076ee3a`). The unfixed findings and the missing-position question went into `docs/audit/2026-11-09-review-residuals.md` (T5.2.1).
-- **Tests:** `npm test` at 8a189e6 gave 123 tests, 120 pass, 0 fail, 3 todo.
-- **Pushed to GitHub on Diego's word on 2026-11-09 at 20:00 CET (`origin/work/2026-11-04`), after clean `key-scan.sh --push` and `gitleaks` runs over every unpushed commit.**
+## Last session — 464ce5ce (seilaut-master), 2026-11-10
+Only a correction: the T1.3.3 blocker line and the decisions sheet said a reinstall was still needed; the criterion passed on 2026-11-09 and again on 2026-11-10 (8ec6d6d). The 13 decisions in `docs/2026-11-09-decisions-for-diego.md` are still Diego's.
 
 ## History
 Older sessions → `HISTORY.md` (not auto-read). Entries are written by the SessionEnd hook; the agent fills Asked, Decided and Shipped.
