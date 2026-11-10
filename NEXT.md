@@ -96,7 +96,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - `npm audit --omit=dev` (only zod expected until T3.5.4)
 
 ## Last session — 464ce5ce (seilaut-master), 2026-11-10
-Only a correction: the T1.3.3 blocker line and the decisions sheet said a reinstall was still needed; the criterion passed on 2026-11-09 and again on 2026-11-10 (8ec6d6d). The 13 decisions in `docs/2026-11-09-decisions-for-diego.md` are still Diego's.
+Only a correction: the T1.3.3 blocker line and the decisions sheet said a reinstall was still needed; the criterion passed on 2026-11-09 and again on 2026-11-10 (8ec6d6d). The 13 decisions in `docs/2026-11-09-decisions-for-diego.md` are still Diego's. Pushed to origin/work/2026-11-04 on Diego's word ("Push everything", 2026-11-10) after clean key-scan --push and gitleaks runs; not deployed.
 
 ## History
 Older sessions → `HISTORY.md` (not auto-read). Entries are written by the SessionEnd hook; the agent fills Asked, Decided and Shipped.
