@@ -23,5 +23,5 @@ How to answer: tell Claude in a chat on this Mac, for example "gsc: 1 yes, 2 yes
 12. **Three bugs that no task covers yet**: a text filter is silently ignored in some cases, so you get unfiltered numbers; a `www.` prefix in one fallback; an exact click-rate threshold like 7% can be missed. Recommendation: make the first one a task, because it gives wrong numbers without saying so.
 13. **Your own live check** (T4.2.6), after items 8 and 9: in Claude Code on this Mac, ask the helper to list your websites, and confirm it shows yours. **Approval line.**
 
-## Not a decision, but needed before checks can pass
-- T1.3.3: one installed package is a broken link left from a 2026-10-14 install. A clean reinstall (`npm ci`) should fix it. It needs a free "heavy" slot on this Mac; Claude runs it when the capacity check allows.
+## Correction, 2026-11-10
+- An earlier version of this sheet said T1.3.3 (one installed package left as a broken link) still needed a clean reinstall. That was wrong for this Mac: the check passed and was ticked on 2026-11-09 at 16:57 UTC, and it passed again when re-run on 2026-11-10. Nothing is needed here.

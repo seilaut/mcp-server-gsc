@@ -53,7 +53,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 
 ## Blockers / awaiting you
 - T3.1.2's criterion no longer runs (domain: decision, awaiting: user). Found 2026-11-09 (Current position). Diego chooses one: put a copy of the guard at `scripts/ci/guards.sh`, the layout bootstrap uses (a code change, then the criterion passes as written); or change the criterion, which needs his line `- <date> — T3.1.2 criterion differs from the template: accepted by Diego: <AC>`.
-- T1.3.3 reopened 2026-11-05 by `--run-ac` on seilaut-new's checkout, which is what "this checkout" and "I" mean in this line (domain: build, awaiting: none). Not yet re-run on seilaut-master; it is first in the 2026-11-09 order. The lockfile is fixed, but `node_modules/buffer-equal-constant-time` is still a dangling symlink to `jwa/patches/...` from the 2026-10-14 install, so the node_modules half of the criterion fails. `npm ci` should clear it; I did not run it (no installs in a verify). The earlier note that all 18 ticks held was true only on seilaut-master's node_modules.
+- ~~T1.3.3 reopened 2026-11-05 on seilaut-new's checkout (dangling `node_modules/buffer-equal-constant-time` link).~~ Resolved on seilaut-master: `--run-ac` ticked it at 2026-11-09T16:57:04Z, and the criterion re-ran by hand on 2026-11-10 with exit 0 (`node_modules/buffer-equal-constant-time` is a real folder on this Mac). On seilaut-new the link may still dangle; `npm ci` there would clear it.
 - Decisions only Diego can make. None of them blocks tonight's tasks; the tasks that depend on them carry `after:`.
   - T3.5.1: the Worker (delete or keep; is one deployed?)
   - T3.5.2: the service-account key
