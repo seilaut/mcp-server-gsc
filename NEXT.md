@@ -4,12 +4,12 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 80% · Δ +0 since 2026-11-12 · scope 90 tasks (+0) · hours 3.1 · cost $147.95 · plan @997cd194
+Progress: 82% · Δ +0 since 2026-11-12 · scope 90 tasks (+0) · hours 3.1 · cost $147.95 · plan @dbcfbb7a
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
-| I3 Security | 58 | 7/18 | in progress | E3.1, E3.5 |
+| I3 Security | 64 | 8/18 | in progress | E3.1, E3.5 |
 | I4 End product | 92 | 11/12 | in progress | E4.2 |
 | I5 Review follow-ups 2026-11-04 | 27 | 8/12 | in progress | E5.1, E5.2, E5.3 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
@@ -30,7 +30,7 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 16 (ready 5, queued 0, waiting 11) · verified this session: — · reopened: none · flat sessions: 0 · ledger @52
+State: blocked · left: 15 (ready 4, queued 0, waiting 11) · verified this session: — · reopened: none · flat sessions: 0 · ledger @53
 Reasons: waiting on Diego (approval): T3.1.14 (after T3.5.6), T3.5.2, T3.5.3, T3.5.6, T4.2.6 (after T3.5.2) +1 more; waiting on Diego (blocker): T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1), T5.2.1
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
