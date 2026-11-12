@@ -182,3 +182,17 @@ ts	session	event	id	detail	model	evidence
 2026-11-12T07:01:22.489Z	local	direction		state=blocked		
 2026-11-12T07:02:29.824Z	local	rollup		pct=78;total=89;done=32		
 2026-11-12T07:02:29.854Z	local	direction		state=blocked		
+2026-11-12T07:28:37.360Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_done	T3.4.1	ticked outside the edit tools, found at stop		
+2026-11-12T07:28:37.364Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_done	T3.5.4	ticked outside the edit tools, found at stop		
+2026-11-12T07:28:37.364Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_done	T3.5.5	ticked outside the edit tools, found at stop		
+2026-11-12T07:28:37.368Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_done	T4.2.1	ticked outside the edit tools, found at stop		
+2026-11-12T07:28:37.372Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_done	T5.1.7	ticked outside the edit tools, found at stop		
+2026-11-12T07:28:37.376Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_added	T5.1.8	open		
+2026-11-12T07:28:37.378Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_added	T5.1.9	open		
+2026-11-12T07:28:37.386Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	task_added	T5.1.10	open		
+2026-11-12T07:28:37.446Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	rollup		pct=78;total=89;done=32		
+2026-11-12T07:28:46.595Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	ac_timeout	T2.2.2	killed after 1s (budget)		
+2026-11-12T07:28:46.638Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	direction		state=blocked		
+2026-11-12T07:31:29.596Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	ac_timeout	T4.1.1	killed after 1.7s (budget)		
+2026-11-12T07:33:52.311Z	local	rollup		pct=77;total=90;done=32		
+2026-11-12T07:33:52.364Z	local	direction		state=blocked		
