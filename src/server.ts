@@ -8,7 +8,6 @@ import {
   SearchAnalyticsSchema,
   EnhancedSearchAnalyticsSchema,
   QuickWinsDetectionSchema,
-  SubmitSitemapSchema,
 } from './schemas.js';
 import { z } from 'zod';
 import { SearchConsoleService } from './search-console.js';
@@ -70,11 +69,6 @@ export function createServer(credentials: string): Server {
           name: 'get_sitemap',
           description: 'Get a sitemap for a site in Google Search Console',
           inputSchema: zodToJsonSchema(GetSitemapSchema),
-        },
-        {
-          name: 'submit_sitemap',
-          description: 'Submit a sitemap for a site in Google Search Console',
-          inputSchema: zodToJsonSchema(SubmitSitemapSchema),
         },
       ],
     };
@@ -250,23 +244,6 @@ export function createServer(credentials: string): Server {
             feedpath: args.feedpath,
           };
           const response = await searchConsole.getSitemap(requestBody);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(response.data, null, 2),
-              },
-            ],
-          };
-        }
-
-        case 'submit_sitemap': {
-          const args = SubmitSitemapSchema.parse(request.params.arguments);
-          const requestBody = {
-            siteUrl: args.siteUrl,
-            feedpath: args.feedpath,
-          };
-          const response = await searchConsole.submitSitemap(requestBody);
           return {
             content: [
               {

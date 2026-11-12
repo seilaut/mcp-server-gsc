@@ -89,15 +89,6 @@ export const GetSitemapSchema = z.object({
     .describe("The site's URL, including protocol. For example: http://www.example.com/"),
 });
 
-export const SubmitSitemapSchema = z.object({
-  feedpath: z
-    .string()
-    .describe('The URL of the sitemap to add. For example: http://www.example.com/sitemap.xml'),
-  siteUrl: z
-    .string()
-    .describe("The site's URL, including protocol. For example: http://www.example.com/"),
-});
-
 // Enhanced Quick Wins Detection Schema
 export const QuickWinsDetectionSchema = GSCBaseSchema.extend({
   startDate: dateString().describe('Start date in YYYY-MM-DD format'),

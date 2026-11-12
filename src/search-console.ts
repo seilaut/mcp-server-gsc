@@ -10,7 +10,6 @@ type SearchanalyticsQueryRequest =
   searchconsole_v1.Params$Resource$Searchanalytics$Query['requestBody'];
 type ListSitemapsRequest = searchconsole_v1.Params$Resource$Sitemaps$List;
 type GetSitemapRequest = searchconsole_v1.Params$Resource$Sitemaps$Get;
-type SubmitSitemapRequest = searchconsole_v1.Params$Resource$Sitemaps$Submit;
 type IndexInspectRequest =
   searchconsole_v1.Params$Resource$Urlinspection$Index$Inspect['requestBody'];
 
@@ -190,19 +189,6 @@ export class SearchConsoleService {
       () => searchConsole.sitemaps.get(requestBody),
       (fallback) =>
         searchConsole.sitemaps.get({
-          ...requestBody,
-          siteUrl: fallback,
-        }),
-    );
-  }
-
-  async submitSitemap(requestBody: SubmitSitemapRequest) {
-    const searchConsole = await this.getSearchConsole();
-    return this.handlePermissionError(
-      requestBody.siteUrl,
-      () => searchConsole.sitemaps.submit(requestBody),
-      (fallback) =>
-        searchConsole.sitemaps.submit({
           ...requestBody,
           siteUrl: fallback,
         }),

@@ -17,7 +17,7 @@ function fakeClient(behaviour: Behaviour) {
   const method = async (params: { siteUrl: string }) => ({ data: behaviour(params.siteUrl) });
   return {
     searchanalytics: { query: method },
-    sitemaps: { list: method, get: method, submit: method },
+    sitemaps: { list: method, get: method },
   };
 }
 

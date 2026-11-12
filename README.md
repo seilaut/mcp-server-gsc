@@ -7,7 +7,7 @@ A Model Context Protocol (MCP) server providing comprehensive access to Google S
 - **Search analytics**: performance data from Search Console, up to 25,000 rows per request (default 1,000)
 - **Filters**: page, query, country and device filters, with the operators listed below
 - **Quick wins**: `detect_quick_wins`, or `enableQuickWins` on `enhanced_search_analytics`, lists queries that rank on page one or two but get few clicks
-- **Sites, sitemaps and URL inspection**: list sites, list, get and submit sitemaps, inspect a URL
+- **Sites, sitemaps and URL inspection**: list sites, list and get sitemaps, inspect a URL
 
 ### Sponsored by
 
@@ -88,11 +88,11 @@ Point `command` at Node and `args` at the `dist/index.js` you built (use the abs
 
 ### Permission fallback
 
-When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `detect_quick_wins` carries the same three fields on its "No data available" message when the fallback returned no rows. If the retry itself fails, the cause of the error the server raises is the retry's own error, and Google's original permission error is that error's `cause` (the retry's error, with that cause, is logged on the server's stderr), but the client sees only the error message: the retry's message, plus the property you asked for and the one retried. Google's original permission reason is not sent to the client. `list_sites` and `index_inspect` do not retry.
+When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the two sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `detect_quick_wins` carries the same three fields on its "No data available" message when the fallback returned no rows. If the retry itself fails, the cause of the error the server raises is the retry's own error, and Google's original permission error is that error's `cause` (the retry's error, with that cause, is logged on the server's stderr), but the client sees only the error message: the retry's message, plus the property you asked for and the one retried. Google's original permission reason is not sent to the client. `list_sites` and `index_inspect` do not retry.
 
 ## Available Tools
 
-The server lists eight tools: `list_sites`, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins`, `index_inspect`, `list_sitemaps`, `get_sitemap` and `submit_sitemap`. Unknown parameters are ignored, not rejected. Invalid values (a bad date, an unlisted dimension) are rejected with an error.
+The server lists seven tools: `list_sites`, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins`, `index_inspect`, `list_sitemaps` and `get_sitemap`. Unknown parameters are ignored, not rejected. Invalid values (a bad date, an unlisted dimension) are rejected with an error.
 
 ### list_sites
 
@@ -170,12 +170,7 @@ Inspect a URL to see if it is indexed or can be indexed.
 - `siteUrl` (required): the site's URL, including protocol
 - `feedpath` (required): URL of the sitemap
 
-### submit_sitemap
-
-- `siteUrl` (required): the site's URL, including protocol
-- `feedpath` (required): URL of the sitemap to add
-
-The server requests only the read-only Search Console scope (`webmasters.readonly`). `submit_sitemap` is untested under that scope, and Google may refuse it.
+The server requests only the read-only Search Console scope (`webmasters.readonly`) and has no tool that changes anything in Search Console. It does not submit sitemaps (T4.2.2).
 
 **Example - Basic Query:**
 

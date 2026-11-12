@@ -21,10 +21,9 @@ const EXPECTED_TOOLS = [
   'list_sitemaps',
   'list_sites',
   'search_analytics',
-  'submit_sitemap',
 ];
 
-test('handshake: server starts with a dummy credentials path and lists its 8 tools', async () => {
+test('handshake: server starts with a dummy credentials path and lists its 7 tools', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'gsc-handshake-'));
   const transport = new StdioClientTransport({
     command: process.execPath,
