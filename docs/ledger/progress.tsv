@@ -178,3 +178,5 @@ ts	session	event	id	detail	model	evidence
 2026-11-09T19:00:45.446Z	local	direction		state=completely blocked		
 2026-11-09T21:49:57.986Z	464ce5ce-eeb8-4827-90c9-188b3f9b603d	task_added	T5.2.1	open		
 2026-11-09T21:50:07.303Z	464ce5ce-eeb8-4827-90c9-188b3f9b603d	ac_timeout	T5.1.2	killed after 1.4s (budget)		
+2026-11-12T07:01:22.434Z	local	rollup		pct=79;total=86;done=32		
+2026-11-12T07:01:22.489Z	local	direction		state=blocked		

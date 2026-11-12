@@ -4,14 +4,14 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 67% · Δ +0 since 2026-11-09 · scope 86 tasks (+0) · hours 3.1 · cost $147.95 · plan @c615067a
+Progress: 79% · Δ +12 since 2026-11-09 · scope 86 tasks (+0) · hours 3.1 · cost $147.95 · plan @900a23ba
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
-| I3 Security | 13 | 2/18 | in progress | E3.1, E3.4, E3.5 |
-| I4 End product | 75 | 9/12 | in progress | E4.2 |
-| I5 Review follow-ups 2026-11-04 | 43 | 6/8 | in progress | E5.1, E5.2 |
+| I3 Security | 52 | 5/18 | in progress | E3.1, E3.5 |
+| I4 End product | 83 | 10/12 | in progress | E4.2 |
+| I5 Review follow-ups 2026-11-04 | 50 | 7/8 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
@@ -30,12 +30,18 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 21 (ready 0, queued 0, waiting 21) · verified this session: — · reopened: none · flat sessions: 0 · ledger @43
-Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.5, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1) +5 more; waiting on Diego (approval): T3.1.12 (after T3.5.7), T3.1.14 (after T3.5.6), T3.4.1, T3.5.2, T3.5.3 +6 more
+State: blocked · left: 16 (ready 3, queued 2, waiting 11) · verified this session: — · reopened: none · flat sessions: 0 · ledger @43
+Reasons: waiting on Diego (blocker): T3.1.2, T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1) +1 more; waiting on Diego (approval): T3.1.14 (after T3.5.6), T3.5.2, T3.5.3, T3.5.6, T4.2.6 (after T3.5.2)
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
 ## Decisions
+- 2026-11-12 — Diego (his message, verbatim): gsc T3.5.4 approved by Diego: upgrade zod to version 4
+- 2026-11-12 — Diego (his message, verbatim): gsc T3.5.5 approved by Diego: delete Dockerfile, smithery.yaml, pnpm-lock.yaml
+- 2026-11-12 — Diego (his message, verbatim): gsc T4.2.1 approved by Diego: remove submit_sitemap, the helper stays read-only
+- 2026-11-12 — Diego (his message, verbatim): gsc T3.4.1 approved by Diego: no old keys to rotate
+- 2026-11-12 — Diego (his message, verbatim): gsc T3.1.2: Claude copies the guard script to scripts/ci/guards.sh
+- 2026-11-12 — Diego (his message, verbatim): gsc T5.1.7: the three bugs become tasks, the text-filter bug first
 - 2026-11-04 — Baselined with `/next baseline` on Diego's yes (migration Task 27). Security tasks that need staging, uploads or a rate-limit decision were dropped (reasons in PLAN.md).
 - 2026-11-04 — PLAN.md rewritten from the audit (Phase 2). Changes:
   - **T1.1.3** now greps the refusal message. Its old criterion passed with no build (audit F2).
