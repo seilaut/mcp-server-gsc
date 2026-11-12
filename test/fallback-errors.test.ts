@@ -9,7 +9,7 @@ import { nameRequestedProperty, pickFallbackFields } from '../src/fallback-label
 // Nothing here calls Google: getSearchConsole is replaced with a fake client.
 const PERMISSION = 'User does not have sufficient permission for site';
 const REQUESTED = 'https://www.example.com/';
-const ANSWERED = 'sc-domain:www.example.com';
+const ANSWERED = 'sc-domain:example.com';
 
 type Behaviour = (siteUrl: string) => unknown;
 
@@ -90,7 +90,7 @@ test('server: a failed fallback names the property the caller asked for', async 
   const res = await callTool(client, 'list_sitemaps', { siteUrl: REQUESTED });
   assert.equal(res.isError, true);
   const text = res.content[0].text;
-  assert.match(text, /Fallback failed for sc-domain:www\.example\.com/);
+  assert.match(text, /Fallback failed for sc-domain:example\.com/);
   assert.ok(text.includes(`requested property: ${REQUESTED}`), text);
 });
 
@@ -135,12 +135,12 @@ test('server: "No data available" without a fallback carries no fallback fields'
 });
 
 test('helper: nameRequestedProperty adds the requested property and keeps the original as cause', () => {
-  const err = Object.assign(new Error('Fallback failed for sc-domain:www.example.com'), {
+  const err = Object.assign(new Error('Fallback failed for sc-domain:example.com'), {
     requestedSiteUrl: REQUESTED,
     answeredSiteUrl: ANSWERED,
   });
   const out = nameRequestedProperty(err) as Error;
-  assert.match(out.message, /^Fallback failed for sc-domain:www\.example\.com/);
+  assert.match(out.message, /^Fallback failed for sc-domain:example\.com/);
   assert.ok(out.message.includes(`requested property: ${REQUESTED}`));
   assert.equal(out.cause, err);
 });

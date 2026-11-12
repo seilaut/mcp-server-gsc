@@ -25,7 +25,7 @@ export function truncateForError(value: string, max: number = MAX_ECHO): string 
 /**
  * Alternative property names to try when a query is refused for permission.
  * - sc-domain: input is never rewritten and has no candidates.
- * - http(s) URL-prefix input falls back to the domain property for its hostname.
+ * - http(s) URL-prefix input falls back to the domain property for its hostname without a leading "www.".
  * - anything else (bare host, empty, missing) throws a clear Error.
  */
 export function fallbackSiteUrls(url: string | null | undefined): string[] {
@@ -42,7 +42,8 @@ export function fallbackSiteUrls(url: string | null | undefined): string[] {
     throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
   }
   if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-    return [`sc-domain:${parsedUrl.hostname}`];
+    // A Domain property never carries a leading "www.", so the candidate is the bare domain.
+    return [`sc-domain:${parsedUrl.hostname.replace(/^www\./, '')}`];
   }
   throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
 }

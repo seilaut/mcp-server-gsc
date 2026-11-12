@@ -27,7 +27,7 @@ function serviceWith(client: unknown) {
 }
 
 const REQUESTED = 'https://www.example.com/';
-const ANSWERED = 'sc-domain:www.example.com';
+const ANSWERED = 'sc-domain:example.com';
 
 const sites: Array<[string, (s: SearchConsoleService, u: string) => Promise<any>]> = [
   ['searchAnalytics', (s, u) => s.searchAnalytics(u, { startDate: '2026-01-01', endDate: '2026-01-02' })],
@@ -57,7 +57,7 @@ for (const [name, call] of sites) {
     assert.equal(res.data.requestedSiteUrl, REQUESTED);
     assert.equal(res.data.answeredSiteUrl, ANSWERED);
     assert.match(res.data.note, /different property/i);
-    assert.match(res.data.note, /sc-domain:www\.example\.com/);
+    assert.match(res.data.note, /sc-domain:example\.com/);
     assert.deepEqual(calls.map((c) => c.siteUrl), [REQUESTED, ANSWERED]);
   });
 }
