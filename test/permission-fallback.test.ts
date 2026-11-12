@@ -15,7 +15,7 @@ function fakeClient(behaviour: (siteUrl: string) => unknown, calls: Call[]) {
   };
   return {
     searchanalytics: { query: method },
-    sitemaps: { list: method, get: method, submit: method },
+    sitemaps: { list: method, get: method },
   };
 }
 
@@ -33,7 +33,6 @@ const sites: Array<[string, (s: SearchConsoleService, u: string) => Promise<any>
   ['searchAnalytics', (s, u) => s.searchAnalytics(u, { startDate: '2026-01-01', endDate: '2026-01-02' })],
   ['listSitemaps', (s, u) => s.listSitemaps({ siteUrl: u })],
   ['getSitemap', (s, u) => s.getSitemap({ siteUrl: u, feedpath: 'https://www.example.com/s.xml' })],
-  ['submitSitemap', (s, u) => s.submitSitemap({ siteUrl: u, feedpath: 'https://www.example.com/s.xml' })],
 ];
 
 for (const [name, call] of sites) {

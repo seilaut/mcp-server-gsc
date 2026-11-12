@@ -78,12 +78,14 @@ export function buildSearchAnalyticsBody(
 }
 
 /**
- * Appends the enhanced tool's regex filter as an extra 'and' group when the
- * request breaks down by query. Mutates and returns requestBody, as the
- * inline code did.
+ * Appends the enhanced tool's regex filter as an extra 'and' group on the query
+ * dimension, whatever dimensions are requested: Search Console allows filtering
+ * on a dimension you do not group by ("You can filter by any dimension listed
+ * here, even if you are not grouping by that dimension"). Mutates and returns
+ * requestBody.
  */
 export function applyRegexFilter(requestBody: any, regexFilter?: string): any {
-  if (regexFilter && requestBody.dimensions?.includes('query')) {
+  if (regexFilter) {
     requestBody.dimensionFilterGroups = [
       ...(requestBody.dimensionFilterGroups || []),
       {
@@ -97,4 +99,14 @@ export function applyRegexFilter(requestBody: any, regexFilter?: string): any {
     ];
   }
   return requestBody;
+}
+
+/** True only when the regex filter is in the body that is sent to Search Console. */
+export function regexFilterWasSent(requestBody: any, regexFilter?: string): boolean {
+  if (!regexFilter) return false;
+  return (requestBody?.dimensionFilterGroups ?? []).some((g: any) =>
+    (g?.filters ?? []).some(
+      (f: any) => f.dimension === 'query' && f.operator === 'includingRegex' && f.expression === regexFilter,
+    ),
+  );
 }

@@ -1,7 +1,7 @@
 import { google, searchconsole_v1 } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
 import { detectQuickWins, type QuickWinsThresholds } from './quick-wins.js';
-import { applyRegexFilter } from './request-body.js';
+import { applyRegexFilter, regexFilterWasSent } from './request-body.js';
 import { resolveCredentialConfig } from './credentials.js';
 import { fallbackSiteUrls } from './site-url.js';
 import type { PermissionFallbackError } from './fallback-labels.js';
@@ -10,7 +10,6 @@ type SearchanalyticsQueryRequest =
   searchconsole_v1.Params$Resource$Searchanalytics$Query['requestBody'];
 type ListSitemapsRequest = searchconsole_v1.Params$Resource$Sitemaps$List;
 type GetSitemapRequest = searchconsole_v1.Params$Resource$Sitemaps$Get;
-type SubmitSitemapRequest = searchconsole_v1.Params$Resource$Sitemaps$Submit;
 type IndexInspectRequest =
   searchconsole_v1.Params$Resource$Urlinspection$Index$Inspect['requestBody'];
 
@@ -130,6 +129,7 @@ export class SearchConsoleService {
 
     // Apply regex filter if provided
     applyRegexFilter(requestBody, options.regexFilter);
+    const regexFilterApplied = regexFilterWasSent(requestBody, options.regexFilter);
 
     // Execute enhanced search analytics
     const result = await this.searchAnalytics(siteUrl, requestBody);
@@ -143,7 +143,7 @@ export class SearchConsoleService {
           ...result.data,
           quickWins: quickWins,
           enhancedFeatures: {
-            regexFilterApplied: !!options.regexFilter,
+            regexFilterApplied,
             quickWinsEnabled: true,
             rowLimit: requestBody.rowLimit || 1000
           }
@@ -190,19 +190,6 @@ export class SearchConsoleService {
       () => searchConsole.sitemaps.get(requestBody),
       (fallback) =>
         searchConsole.sitemaps.get({
-          ...requestBody,
-          siteUrl: fallback,
-        }),
-    );
-  }
-
-  async submitSitemap(requestBody: SubmitSitemapRequest) {
-    const searchConsole = await this.getSearchConsole();
-    return this.handlePermissionError(
-      requestBody.siteUrl,
-      () => searchConsole.sitemaps.submit(requestBody),
-      (fallback) =>
-        searchConsole.sitemaps.submit({
           ...requestBody,
           siteUrl: fallback,
         }),

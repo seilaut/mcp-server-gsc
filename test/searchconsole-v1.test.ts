@@ -22,7 +22,7 @@ async function withRecorders(run: (log: string[]) => Promise<void>) {
     return {
       searchanalytics: { query: method('searchanalytics.query') },
       sites: { list: method('sites.list') },
-      sitemaps: { list: method('sitemaps.list'), get: method('sitemaps.get'), submit: method('sitemaps.submit') },
+      sitemaps: { list: method('sitemaps.list'), get: method('sitemaps.get') },
       urlInspection: { index: { inspect: method('inspect') } },
     };
   };
@@ -49,7 +49,6 @@ const calls: Array<[string, string, (s: SearchConsoleService) => Promise<unknown
   ['listSites', 'sites.list', (s) => s.listSites()],
   ['listSitemaps', 'sitemaps.list', (s) => s.listSitemaps({ siteUrl: 'sc-domain:example.com' })],
   ['getSitemap', 'sitemaps.get', (s) => s.getSitemap({ siteUrl: 'sc-domain:example.com', feedpath: 'https://example.com/s.xml' })],
-  ['submitSitemap', 'sitemaps.submit', (s) => s.submitSitemap({ siteUrl: 'sc-domain:example.com', feedpath: 'https://example.com/s.xml' })],
 ];
 
 for (const [name, resource, call] of calls) {

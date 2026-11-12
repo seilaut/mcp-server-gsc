@@ -1,6 +1,5 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import {
   GetSitemapSchema,
   IndexInspectSchema,
@@ -8,7 +7,6 @@ import {
   SearchAnalyticsSchema,
   EnhancedSearchAnalyticsSchema,
   QuickWinsDetectionSchema,
-  SubmitSitemapSchema,
 } from './schemas.js';
 import { z } from 'zod';
 import { SearchConsoleService } from './search-console.js';
@@ -39,42 +37,37 @@ export function createServer(credentials: string): Server {
         {
           name: 'list_sites',
           description: 'List all sites in Google Search Console',
-          inputSchema: zodToJsonSchema(z.object({})),
+          inputSchema: z.toJSONSchema(z.object({}), { io: 'input' }),
         },
         {
           name: 'search_analytics',
           description: 'Get search performance data from Google Search Console',
-          inputSchema: zodToJsonSchema(SearchAnalyticsSchema),
+          inputSchema: z.toJSONSchema(SearchAnalyticsSchema, { io: 'input' }),
         },
         {
           name: 'enhanced_search_analytics',
           description: 'Enhanced search analytics with up to 25,000 rows, regex filters, and quick wins detection',
-          inputSchema: zodToJsonSchema(EnhancedSearchAnalyticsSchema),
+          inputSchema: z.toJSONSchema(EnhancedSearchAnalyticsSchema, { io: 'input' }),
         },
         {
           name: 'detect_quick_wins',
           description: 'Automatically detect SEO quick wins and optimization opportunities',
-          inputSchema: zodToJsonSchema(QuickWinsDetectionSchema),
+          inputSchema: z.toJSONSchema(QuickWinsDetectionSchema, { io: 'input' }),
         },
         {
           name: 'index_inspect',
           description: 'Inspect a URL to see if it is indexed or can be indexed',
-          inputSchema: zodToJsonSchema(IndexInspectSchema),
+          inputSchema: z.toJSONSchema(IndexInspectSchema, { io: 'input' }),
         },
         {
           name: 'list_sitemaps',
           description: 'List sitemaps for a site in Google Search Console',
-          inputSchema: zodToJsonSchema(ListSitemapsSchema),
+          inputSchema: z.toJSONSchema(ListSitemapsSchema, { io: 'input' }),
         },
         {
           name: 'get_sitemap',
           description: 'Get a sitemap for a site in Google Search Console',
-          inputSchema: zodToJsonSchema(GetSitemapSchema),
-        },
-        {
-          name: 'submit_sitemap',
-          description: 'Submit a sitemap for a site in Google Search Console',
-          inputSchema: zodToJsonSchema(SubmitSitemapSchema),
+          inputSchema: z.toJSONSchema(GetSitemapSchema, { io: 'input' }),
         },
       ],
     };
@@ -260,23 +253,6 @@ export function createServer(credentials: string): Server {
           };
         }
 
-        case 'submit_sitemap': {
-          const args = SubmitSitemapSchema.parse(request.params.arguments);
-          const requestBody = {
-            siteUrl: args.siteUrl,
-            feedpath: args.feedpath,
-          };
-          const response = await searchConsole.submitSitemap(requestBody);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(response.data, null, 2),
-              },
-            ],
-          };
-        }
-
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
       }
@@ -284,7 +260,7 @@ export function createServer(credentials: string): Server {
       console.error(error);
       if (error instanceof z.ZodError) {
         throw new Error(
-          `Invalid arguments: ${error.errors.map((e) => `${e.path.join('.')}: ${truncateForError(e.message, 150)}`).join(', ')}`,
+          `Invalid arguments: ${error.issues.map((e) => `${e.path.join('.')}: ${truncateForError(e.message, 150)}`).join(', ')}`,
         );
       }
       throw nameRequestedProperty(error);

@@ -89,15 +89,6 @@ export const GetSitemapSchema = z.object({
     .describe("The site's URL, including protocol. For example: http://www.example.com/"),
 });
 
-export const SubmitSitemapSchema = z.object({
-  feedpath: z
-    .string()
-    .describe('The URL of the sitemap to add. For example: http://www.example.com/sitemap.xml'),
-  siteUrl: z
-    .string()
-    .describe("The site's URL, including protocol. For example: http://www.example.com/"),
-});
-
 // Enhanced Quick Wins Detection Schema
 export const QuickWinsDetectionSchema = GSCBaseSchema.extend({
   startDate: dateString().describe('Start date in YYYY-MM-DD format'),
@@ -110,7 +101,7 @@ export const QuickWinsDetectionSchema = GSCBaseSchema.extend({
 
 // Enhanced Search Analytics Schema with Quick Wins
 export const EnhancedSearchAnalyticsSchema = SearchAnalyticsSchema.extend({
-  regexFilter: z.string().optional().describe('Advanced regex filter for intelligent query matching'),
+  regexFilter: z.string().optional().describe('RE2 regular expression the query must match (includingRegex). Sent to Search Console whatever dimensions you request.'),
   enableQuickWins: z.boolean().default(false).describe('Enable automatic quick wins detection'),
   quickWinsThresholds: QuickWinsDetectionSchema.pick({
     minImpressions: true,

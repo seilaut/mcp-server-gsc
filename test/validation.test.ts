@@ -8,7 +8,6 @@ import {
   QuickWinsDetectionSchema,
   ListSitemapsSchema,
   GetSitemapSchema,
-  SubmitSitemapSchema,
 } from '../src/schemas.ts';
 import { createServer } from '../src/server.ts';
 import { SearchConsoleService } from '../src/search-console.ts';
@@ -55,7 +54,7 @@ test('rowLimit: integers accepted, non-integers rejected, bounds unchanged', () 
   assert.equal(EnhancedSearchAnalyticsSchema.safeParse({ ...base, rowLimit: 10.5 }).success, false);
 });
 
-test('sitemaps: Google requires siteUrl for list, siteUrl and feedpath for get and submit', () => {
+test('sitemaps: Google requires siteUrl for list, siteUrl and feedpath for get', () => {
   const u = 'http://www.example.com/';
   const f = 'http://www.example.com/sitemap.xml';
   assert.equal(ListSitemapsSchema.safeParse({}).success, false);
@@ -65,9 +64,6 @@ test('sitemaps: Google requires siteUrl for list, siteUrl and feedpath for get a
   assert.equal(GetSitemapSchema.safeParse({ feedpath: f }).success, false);
   assert.equal(GetSitemapSchema.safeParse({}).success, false);
   assert.equal(GetSitemapSchema.safeParse({ siteUrl: u, feedpath: f }).success, true);
-  assert.equal(SubmitSitemapSchema.safeParse({ siteUrl: u }).success, false);
-  assert.equal(SubmitSitemapSchema.safeParse({ feedpath: f }).success, false);
-  assert.equal(SubmitSitemapSchema.safeParse({ siteUrl: u, feedpath: f }).success, true);
 });
 
 async function connect() {

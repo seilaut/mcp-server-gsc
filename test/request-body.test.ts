@@ -61,7 +61,7 @@ for (const op of ['equals', 'contains', 'notEquals', 'notContains', 'includingRe
   });
 }
 
-test('operator defaults to equals when not given', { todo: 'filterOperator uses .default("equals").optional(); optional is outermost so the default never applies and operator is undefined (omitted from JSON). Schema text says it defaults to "equals"' }, () => {
+test('operator defaults to equals when not given (zod 4 applies the default inside optional)', () => {
   assert.deepEqual(search({ queryFilter: 'a' }).dimensionFilterGroups, [
     { filters: [{ dimension: 'query', operator: 'equals', expression: 'a' }] },
   ]);
@@ -148,20 +148,9 @@ test('regex filter: empty string adds nothing', () => {
   assert.equal('dimensionFilterGroups' in applyRegexFilter({ dimensions: ['query'] }, undefined), false);
 });
 
-test('regex filter is skipped when query is not a dimension (current behaviour)', () => {
-  assert.equal('dimensionFilterGroups' in applyRegexFilter({ dimensions: ['page'] }, 'x'), false);
-  assert.equal('dimensionFilterGroups' in applyRegexFilter({}, 'x'), false);
-});
-
-test('regex filter is not silently dropped when query is not a dimension', { todo: 'regexFilter is silently ignored unless dimensions includes query; GSC can filter on a dimension it does not group by' }, () => {
+test('regex filter is not silently dropped when query is not a dimension', () => {
   const body = applyRegexFilter({ dimensions: ['page'] }, 'x');
   assert.equal(body.dimensionFilterGroups?.length, 1);
-});
-
-test('operator is left undefined when not given (current behaviour: key present, value undefined)', () => {
-  assert.deepEqual(search({ queryFilter: 'a' }).dimensionFilterGroups, [
-    { filters: [{ dimension: 'query', operator: undefined, expression: 'a' }] },
-  ]);
 });
 
 test('startRow and dataState are not exposed by the schemas, so never appear in the body', () => {

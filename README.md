@@ -7,7 +7,7 @@ A Model Context Protocol (MCP) server providing comprehensive access to Google S
 - **Search analytics**: performance data from Search Console, up to 25,000 rows per request (default 1,000)
 - **Filters**: page, query, country and device filters, with the operators listed below
 - **Quick wins**: `detect_quick_wins`, or `enableQuickWins` on `enhanced_search_analytics`, lists queries that rank on page one or two but get few clicks
-- **Sites, sitemaps and URL inspection**: list sites, list, get and submit sitemaps, inspect a URL
+- **Sites, sitemaps and URL inspection**: list sites, list and get sitemaps, inspect a URL
 
 ### Sponsored by
 
@@ -34,7 +34,7 @@ npm ci
 npm run build
 ```
 
-`npm ci` installs from `package-lock.json` (the lockfile to use; `pnpm-lock.yaml` is stale). The build writes `dist/index.js`, the server's entry point.
+`npm ci` installs from `package-lock.json` (the only lockfile). The build writes `dist/index.js`, the server's entry point.
 
 ## Authentication Setup
 
@@ -88,11 +88,11 @@ Point `command` at Node and `args` at the `dist/index.js` you built (use the abs
 
 ### Permission fallback
 
-When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the three sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `detect_quick_wins` carries the same three fields on its "No data available" message when the fallback returned no rows. If the retry itself fails, the cause of the error the server raises is the retry's own error, and Google's original permission error is that error's `cause` (the retry's error, with that cause, is logged on the server's stderr), but the client sees only the error message: the retry's message, plus the property you asked for and the one retried. Google's original permission reason is not sent to the client. `list_sites` and `index_inspect` do not retry.
+When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the two sitemap tools retry once against the domain property (`sc-domain:<hostname>`) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `detect_quick_wins` carries the same three fields on its "No data available" message when the fallback returned no rows. If the retry itself fails, the cause of the error the server raises is the retry's own error, and Google's original permission error is that error's `cause` (the retry's error, with that cause, is logged on the server's stderr), but the client sees only the error message: the retry's message, plus the property you asked for and the one retried. Google's original permission reason is not sent to the client. `list_sites` and `index_inspect` do not retry.
 
 ## Available Tools
 
-The server lists eight tools: `list_sites`, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins`, `index_inspect`, `list_sitemaps`, `get_sitemap` and `submit_sitemap`. Unknown parameters are ignored, not rejected. Invalid values (a bad date, an unlisted dimension) are rejected with an error.
+The server lists seven tools: `list_sites`, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins`, `index_inspect`, `list_sitemaps` and `get_sitemap`. Unknown parameters are ignored, not rejected. Invalid values (a bad date, an unlisted dimension) are rejected with an error.
 
 ### list_sites
 
@@ -121,7 +121,7 @@ Get search performance data from Google Search Console.
 - `queryFilter`: Filter by search query, compared using `filterOperator`
 - `countryFilter`: Filter by country ISO 3166-1 alpha-3 code (e.g., `USA`, `CHN`); always `equals`
 - `deviceFilter`: Filter by device type (`DESKTOP`, `MOBILE`, `TABLET`); always `equals`
-- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the server sends no operator.
+- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the operator is `equals`.
 
 The regex operators pass your expression to Search Console as written. There is no `regex:` prefix: write the pattern itself.
 
@@ -129,11 +129,11 @@ The regex operators pass your expression to Search Console as written. There is 
 
 Takes every parameter of `search_analytics`, and adds:
 
-- `regexFilter`: A regular expression matched against the query with `includingRegex`. It is applied only when `dimensions` includes `query`; otherwise it is silently ignored.
+- `regexFilter`: A regular expression matched against the query with `includingRegex`. It is always sent to Search Console, whatever `dimensions` you ask for: Search Console can filter on a dimension you do not group by. It is added as its own filter group, so it combines with your other filters (AND).
 - `enableQuickWins`: Add a `quickWins` list to the result (default: `false`). Added only when rows come back.
 - `quickWinsThresholds`: Optional object with `minImpressions` (default `50`), `maxCtr` (percentage, default `2`), `positionRangeMin` (default `4`) and `positionRangeMax` (default `10`).
 
-When `enableQuickWins` is on and rows come back, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true whenever `regexFilter` was given, even if it was ignored for the reason above.
+When `enableQuickWins` is on and rows come back, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true only when a `regexFilter` was sent to Search Console, and false when none was given.
 
 ### detect_quick_wins
 
@@ -170,12 +170,7 @@ Inspect a URL to see if it is indexed or can be indexed.
 - `siteUrl` (required): the site's URL, including protocol
 - `feedpath` (required): URL of the sitemap
 
-### submit_sitemap
-
-- `siteUrl` (required): the site's URL, including protocol
-- `feedpath` (required): URL of the sitemap to add
-
-The server requests only the read-only Search Console scope (`webmasters.readonly`). `submit_sitemap` is untested under that scope, and Google may refuse it.
+The server requests only the read-only Search Console scope (`webmasters.readonly`) and has no tool that changes anything in Search Console. It does not submit sitemaps (T4.2.2).
 
 **Example - Basic Query:**
 
