@@ -4,7 +4,7 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 82% · Δ +0 since 2026-11-12 · scope 90 tasks (+0) · hours 3.1 · cost $147.95 · plan @dbcfbb7a
+Progress: 82% · Δ +0 since 2026-11-12 · scope 90 tasks (+0) · hours 3.1 · cost $147.95 · plan @391771f1
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
