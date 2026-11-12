@@ -121,7 +121,7 @@ Get search performance data from Google Search Console.
 - `queryFilter`: Filter by search query, compared using `filterOperator`
 - `countryFilter`: Filter by country ISO 3166-1 alpha-3 code (e.g., `USA`, `CHN`); always `equals`
 - `deviceFilter`: Filter by device type (`DESKTOP`, `MOBILE`, `TABLET`); always `equals`
-- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the server sends no operator.
+- `filterOperator`: Operator for `pageFilter` and `queryFilter` (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`). If you leave it out, the operator is `equals`.
 
 The regex operators pass your expression to Search Console as written. There is no `regex:` prefix: write the pattern itself.
 
