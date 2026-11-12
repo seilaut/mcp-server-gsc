@@ -7,7 +7,7 @@ import { SearchConsoleService } from '../src/search-console.ts';
 
 const PERMISSION = 'User does not have sufficient permission for site';
 const REQUESTED = 'https://www.example.com/';
-const ANSWERED = 'sc-domain:www.example.com';
+const ANSWERED = 'sc-domain:example.com';
 
 // Fixed input (ctr is a fraction, as Search Console returns it). Only the first and third qualify
 // under the default thresholds (impressions >= 50, ctr <= 2, position 4..10).

@@ -12,6 +12,35 @@ export function ctrToPercent(ctr: number | undefined | null): number {
   return (ctr || 0) * 100;
 }
 
+// A finite number as an exact decimal: value = int / 10^scale, read from the shortest
+// string that round-trips (so 0.07 is 7 / 100, not its binary neighbour).
+function toDecimal(n: number): { int: bigint; scale: number } {
+  const m = /^(-?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/.exec(String(n));
+  if (!m) throw new Error(`not a plain decimal: ${n}`);
+  const frac = m[3] ?? '';
+  let int = BigInt(m[2] + frac);
+  let scale = frac.length - Number(m[4] ?? 0);
+  if (scale < 0) {
+    int *= 10n ** BigInt(-scale);
+    scale = 0;
+  }
+  return { int: m[1] ? -int : int, scale };
+}
+
+/**
+ * Exact `ctr * 100 <= maxCtr`, where ctr is a fraction and maxCtr a percentage.
+ * Floating-point multiplication misses the boundary (0.07 * 100 is 7.000000000000001),
+ * so both sides are compared as decimals.
+ */
+export function ctrAtOrBelow(ctr: number | undefined | null, maxCtr: number): boolean {
+  const c = ctr || 0;
+  if (!Number.isFinite(c) || !Number.isFinite(maxCtr)) return ctrToPercent(c) <= maxCtr;
+  const a = toDecimal(c); // c = a.int / 10^a.scale
+  const b = toDecimal(maxCtr);
+  // c * 100 <= maxCtr  <=>  a.int * 100 * 10^b.scale <= b.int * 10^a.scale
+  return a.int * 100n * 10n ** BigInt(b.scale) <= b.int * 10n ** BigInt(a.scale);
+}
+
 export function detectQuickWins(
   rows: any[],
   thresholds: QuickWinsThresholds = {}
@@ -26,11 +55,10 @@ export function detectQuickWins(
   return rows
     .filter(row => {
       const impressions = row.impressions || 0;
-      const ctr = ctrToPercent(row.ctr);
       const position = row.position || 0;
 
       return impressions >= minImpressions &&
-             ctr <= maxCtr &&
+             ctrAtOrBelow(row.ctr, maxCtr) &&
              position >= positionRangeMin &&
              position <= positionRangeMax;
     })
