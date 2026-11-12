@@ -129,11 +129,11 @@ The regex operators pass your expression to Search Console as written. There is 
 
 Takes every parameter of `search_analytics`, and adds:
 
-- `regexFilter`: A regular expression matched against the query with `includingRegex`. It is applied only when `dimensions` includes `query`; otherwise it is silently ignored.
+- `regexFilter`: A regular expression matched against the query with `includingRegex`. It is always sent to Search Console, whatever `dimensions` you ask for: Search Console can filter on a dimension you do not group by. It is added as its own filter group, so it combines with your other filters (AND).
 - `enableQuickWins`: Add a `quickWins` list to the result (default: `false`). Added only when rows come back.
 - `quickWinsThresholds`: Optional object with `minImpressions` (default `50`), `maxCtr` (percentage, default `2`), `positionRangeMin` (default `4`) and `positionRangeMax` (default `10`).
 
-When `enableQuickWins` is on and rows come back, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true whenever `regexFilter` was given, even if it was ignored for the reason above.
+When `enableQuickWins` is on and rows come back, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true only when a `regexFilter` was sent to Search Console, and false when none was given.
 
 ### detect_quick_wins
 

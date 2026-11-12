@@ -148,12 +148,7 @@ test('regex filter: empty string adds nothing', () => {
   assert.equal('dimensionFilterGroups' in applyRegexFilter({ dimensions: ['query'] }, undefined), false);
 });
 
-test('regex filter is skipped when query is not a dimension (current behaviour)', () => {
-  assert.equal('dimensionFilterGroups' in applyRegexFilter({ dimensions: ['page'] }, 'x'), false);
-  assert.equal('dimensionFilterGroups' in applyRegexFilter({}, 'x'), false);
-});
-
-test('regex filter is not silently dropped when query is not a dimension', { todo: 'regexFilter is silently ignored unless dimensions includes query; GSC can filter on a dimension it does not group by' }, () => {
+test('regex filter is not silently dropped when query is not a dimension', () => {
   const body = applyRegexFilter({ dimensions: ['page'] }, 'x');
   assert.equal(body.dimensionFilterGroups?.length, 1);
 });
