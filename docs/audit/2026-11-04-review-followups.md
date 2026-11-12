@@ -96,3 +96,11 @@ REMEDIATION.md (T1.3.2 review): `:12` and `:77` state the 2026-10-14 result as c
 3. **The five rulings above are in force.** The one with a real behaviour cost is ruling 4 (a rare input such as `example.com:8080` now errors instead of falling back). Say so if you want it reversed.
 4. **Deviation:** the controller started `npm run build` while capacity showed 0 heavy slots (about 15 s, exit 0 on 0ef3311).
 5. The merge itself is not blocked by anything here.
+
+## Amendment 2026-11-12 — the three plan follow-ups become tasks (T5.1.7)
+
+Diego, 2026-11-12: "the three bugs become tasks, the text-filter bug first". Order: T5.1.8, then T5.1.9 and T5.1.10.
+
+- T5.1.8 (HIGH): `regexFilter` is silently dropped unless `dimensions` includes `query` (src/request-body.ts:86), quick-wins then claims `regexFilterApplied: true` (src/search-console.ts:144), and README.md:97-98 and :132 promise a `regex:` prefix no code handles. Done when the filter is sent whatever dimensions are requested (or the request is refused with a clear error, never silently unfiltered), `regexFilterApplied` is true only when the filter was sent, the README matches the code, and the `todo` tests in test/request-body.test.ts are real tests.
+- T5.1.9: the `sc-domain:` fallback builds `sc-domain:www.<domain>` for a `www.` URL (audit F8); a Domain property never carries `www.`. Done when the fallback uses the bare domain and the result names the property actually queried, so a broader Domain property is never presented as the URL-prefix property asked for.
+- T5.1.10: quick-wins compares `ctr*100 <= maxCtr` in floating point, so an exact custom threshold such as 7 misses a row whose CTR is 0.07. Done when the comparison is exact at the boundary for whole and decimal percentages.
