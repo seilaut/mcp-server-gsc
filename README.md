@@ -170,7 +170,7 @@ Inspect a URL to see if it is indexed or can be indexed.
 - `siteUrl` (required): the site's URL, including protocol
 - `feedpath` (required): URL of the sitemap
 
-The server requests only the read-only Search Console scope (`webmasters.readonly`) and has no tool that changes anything in Search Console. It does not submit sitemaps (T4.2.2).
+The server requests only the read-only Search Console scope (`webmasters.readonly`) and has no tool that changes anything in Search Console. It does not submit sitemaps.
 
 **Example - Basic Query:**
 

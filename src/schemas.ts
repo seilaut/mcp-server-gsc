@@ -2,8 +2,6 @@ import { z } from 'zod';
 
 // YYYY-MM-DD, and a real calendar day (rejects 2026-02-30). The message is fixed text, never the input.
 const DATE_MESSAGE = 'Must be a date in YYYY-MM-DD format';
-// A factory, not a shared constant: a shared instance makes zod-to-json-schema emit endDate as a
-// $ref to startDate, which hides endDate's type and description from clients.
 // One refine (not regex + refine) so a malformed date reports one issue.
 const dateString = () =>
   z.string().refine((v) => {
