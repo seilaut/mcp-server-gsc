@@ -34,7 +34,7 @@ npm ci
 npm run build
 ```
 
-`npm ci` installs from `package-lock.json` (the lockfile to use; `pnpm-lock.yaml` is stale). The build writes `dist/index.js`, the server's entry point.
+`npm ci` installs from `package-lock.json` (the only lockfile). The build writes `dist/index.js`, the server's entry point.
 
 ## Authentication Setup
 

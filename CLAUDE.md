@@ -9,7 +9,7 @@ Front door for `mcp-server-gsc` (fork of `ahonn/mcp-server-gsc`): an MCP server 
 4. `REMEDIATION.md`: the security remediation log. `README.md`: user-facing setup.
 
 ## Install and verify
-`package-lock.json` is the authoritative lockfile (`pnpm-lock.yaml` is stale; do not use it). Node 22 or later.
+`package-lock.json` is the only lockfile. Node 22 or later.
 
 ```bash
 npm ci                 # install from the lockfile
