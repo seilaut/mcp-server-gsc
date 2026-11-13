@@ -42,7 +42,9 @@ export function fallbackSiteUrls(url: string | null | undefined): string[] {
     throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
   }
   if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-    // A Domain property never carries a leading "www.", so the candidate is the bare domain.
+    // A Domain property never carries "www.": Google's help page says "Don't include a www prefix. Domain
+    // properties automatically include both www and non-www prefixes"
+    // (https://support.google.com/webmasters/answer/34592, checked 2026-11-13). So the one candidate is the bare domain.
     return [`sc-domain:${parsedUrl.hostname.replace(/^www\./, '')}`];
   }
   throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
