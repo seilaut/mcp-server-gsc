@@ -36,6 +36,9 @@ Reasons: waiting on Diego (approval): T3.1.14 (after T3.5.6), T3.5.2, T3.5.3, T3
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
 ## Decisions
+- 2026-11-13 — T3.1.2 criterion differs from the template: accepted by Diego: `GUARDS_PROJECT_TOP="$PWD" bash ~/.claude/skills/bootstrap/assets/guards.sh >/dev/null && gitleaks dir dist --no-banner --redact --exit-code 1 && test "$(grep -l 'process\.env' src/*.ts)" = src/index.ts` exit 0 [fast]
+- 2026-11-13 — gsc T5.3.1 approved by Diego: fix 2, 10; accept 1, 5, 6, 8 (Google's help page rules out www. Domain properties, checked 2026-11-13), 9; drop 3, 4 (already fixed); 7 settled by the T3.1.2 line
+- 2026-11-13 — gsc approved by Diego: update hono and @hono/node-server to clear the two moderate advisories of 2026-11-13
 - 2026-11-12 — Diego (his message, verbatim): gsc T3.5.4 approved by Diego: upgrade zod to version 4
 - 2026-11-12 — Diego (his message, verbatim): gsc T3.5.5 approved by Diego: delete Dockerfile, smithery.yaml, pnpm-lock.yaml
 - 2026-11-12 — Diego (his message, verbatim): gsc T4.2.1 approved by Diego: remove submit_sitemap, the helper stays read-only
@@ -64,18 +67,18 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
   - T3.5.1: the Worker (delete or keep; is one deployed?)
   - T3.5.2: the service-account key
   - T3.5.3: which properties, and at what permission level
-  - T3.5.4: zod 4
-  - T3.5.5: removing Docker, Smithery and pnpm
-  - T3.5.6: Dependabot alerts
-  - T4.2.1: submit_sitemap
-  - T3.4.1: the template row on rotating keys found in history (none were found)
+  - ~~T3.5.4: zod 4~~ decided 2026-11-12
+  - ~~T3.5.5: removing Docker, Smithery and pnpm~~ decided 2026-11-12
+  - T3.5.6: Dependabot alerts. Turned on 2026-11-13 in the seilaut GitHub account (Claude, in Diego's seilaut Chrome; GitHub showed "Repository settings saved"). The T3.1.14 check needs a gh login as seilaut: seilaut is a personal account, so dgusti59 cannot be made admin. Diego runs `gh auth login` for seilaut (the auto-mode classifier refused it for Claude).
+  - ~~T4.2.1: submit_sitemap~~ decided 2026-11-12
+  - ~~T3.4.1: the template row on rotating keys found in history (none were found)~~ decided 2026-11-12
   - T4.2.6: his own live check
 - ~~Not in the plan yet~~ Now T5.1.8 (Diego, 2026-11-12). `regexFilter` is silently dropped unless `dimensions` includes `query` (src/request-body.ts:86), so the user gets unfiltered numbers. The quick-wins output then claims `regexFilterApplied: true` (src/search-console.ts:144). README.md:97-98 and :132 promise a `regex:` prefix that no code handles. Pinned as `todo` tests in test/request-body.test.ts. T4.1.3 covers only the advertising part.
 - ~~Not in the plan~~ Now T5.1.9 (Diego, 2026-11-12): F8's `www.` prefix in the `sc-domain:www.…` fallback is tracked by no task. Leaving it as is stays the safer default.
 - ~~Not in the plan~~ Now T5.1.10 (Diego, 2026-11-12): an exact custom CTR threshold such as 7% is missed through floating point (`ctr*100 <= maxCtr`). The default of 2% is never affected.
 - The Worker's /mcp answers `initialize` and `tools/list` with NO auth while MCP_API_TOKEN is unset. Confirmed on HEAD by the final review (run in Node; workerd was not run). Decide in T3.5.1 whether to delete the Worker or set the token (domain: security, awaiting: user).
 - If T4.2.1 grants the write scope, the permission fallback would submit a sitemap to a different property than the one asked for. Exclude submit_sitemap from the fallback first (domain: bug, awaiting: user).
-- engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).
+- ~~engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).~~ Resolved 2026-11-12: the Dockerfile was removed (T3.5.5 approved, T3.5.12 done).
 
 - **T5.2.1: rule on the 2026-11-09 review residuals** (domain: decision, awaiting: user). `docs/audit/2026-11-09-review-residuals.md` lists:
   - 4 items to settle before any deploy: two live checks of the Search Console v1 calls, the open `/mcp` without a token, and T3.1.2's criterion;
@@ -92,7 +95,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
   - `~/.openclaw/credentials/` does not exist.
 
   A live query needs Diego's key and a registration first (T3.5.2).
-- `package-lock.json` is the authoritative lockfile. `pnpm-lock.yaml` is pre-remediation and only the Dockerfile uses it (audit F4, T3.5.5).
+- `package-lock.json` is the only lockfile. `pnpm-lock.yaml` and the Dockerfile were removed on 2026-11-12 (T3.5.12).
 - The Worker's `/mcp` has bearer auth only when `MCP_API_TOKEN` is set; without it the endpoint is open (audit F5).
 
 ## Verify with

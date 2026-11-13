@@ -19,3 +19,19 @@ Branch `work/2026-11-12-gsc-2` (a8ddc05, 5b3da73, 69fac5c). Reviews: opus "merge
 8. **"A Domain property never carries `www.`" is unverified** (opus): the spec, README:91 and src/site-url.ts:45 assume it, and nobody checked it against Google's docs. If an account holds `sc-domain:www.example.com`, the fallback that reached it now misses it; the fallback also now queries a broader property (all subdomains), which the note labels. Option: try both candidates.
 9. **The exact CTR comparison is slower** (opus): about 7-17 µs per row (25,000 rows: 180-420 ms against about 0.2 ms). Fine on stdio; it costs CPU if detect_quick_wins runs in the Worker. Option: compare as floats unless within about 1e-9 of the threshold.
 10. **T3.5.8's criterion is weak** (haiku): it checks only the direct dependency and the handshake's `inputSchema.type`; zod-to-json-schema stays installed through @modelcontextprotocol/sdk (package-lock.json:1215, hoisted at :3300), which is correct. The comment explaining why `dateString` is a factory (a shared instance produced `$ref`) was deleted, and nobody checked whether zod 4 still does that. PLAN.md's T3.5.8 text still says "8 tools" (the handshake checks 7). The test "default threshold (2) is exact at 0.02" also passes on the old code.
+
+## Rulings and amendment, 2026-11-13
+
+Diego ruled on T5.3.1 on 2026-11-13 (his line is in NEXT.md Decisions). Built on branch `work/2026-11-13-gsc-3`; reviews: opus "do not merge" on the first version (item 8 two-candidate fallback was wrong, see below), then haiku "merge" on the corrected branch.
+
+- **Item 1 (schema draft and additionalProperties):** accept. The server strips unknown keys and README says unknown parameters are ignored.
+- **Item 2 (stale Docker docs):** fix, task **T5.3.2**. PLAN.md:10, PLAN.md F14 note, the T3.5.5 note, NEXT.md (Dockerfile and lockfile lines) corrected on 2026-11-13. REMEDIATION.md is a dated log and keeps its wording: its 2026-11-12 note already records the removal.
+- **Item 3 (zod-to-json-schema):** drop, already fixed in round 2 (T3.5.8; package.json has no such entry, checked 2026-11-13).
+- **Item 4 (README task id):** drop, already fixed (README has no "T4.2.2", checked 2026-11-13).
+- **Item 5 (regexFilter local check):** accept. Google returns its own 400.
+- **Item 6 (weak proofs):** accept.
+- **Item 7 (T3.1.2):** settled by Diego's criterion line of 2026-11-13 (`GUARDS_PROJECT_TOP="$PWD"` in front of the guard).
+- **Item 8 (www. Domain property):** accept, no behaviour change. Google's help page https://support.google.com/webmasters/answer/34592 (fetched with curl 2026-11-13) says a Domain property is created from the root domain "and any optional subdomains except for www", and "Don't include a www prefix. Domain properties automatically include both www and non-www prefixes". A first attempt that tried both candidates was reverted (87a194c, reverted by 7e1db9b): when both were refused it reported the impossible `sc-domain:www.` property and dropped the bare-domain refusal. The code comment and README:91 now cite the page.
+- **Item 9 (exact CTR comparison speed):** accept.
+- **Item 10 (dateString comment, weak T3.5.8 criterion, "8 tools"):** fix, task **T5.3.3**. Checked 2026-11-13: zod 4.6.7 `z.toJSONSchema(..., {io:'input'})` with the default `reused` option emits no `$ref` for a shared instance; under zod 3, zod-to-json-schema did (9795844). PLAN.md's T3.5.8 text now says 7 tools. No float/exact boundary exists at the default threshold 2; the 0.07/7 test is the one that separates them.
+- **New 2026-11-13: hono advisories.** Two moderate advisories in transitive production dependencies (hono <=4.13.15, @hono/node-server 2.0.0-2.1.5), published 2026-11-13. Diego approved the update; task **T5.3.4**. `npm audit fix --omit=dev` moved hono to 4.13.18 and @hono/node-server to 2.1.8, lockfile only.
