@@ -32,8 +32,8 @@ export class SearchConsoleService {
   }
 
   /**
-   * Runs `operation`; on a permission error retries against the fallback
-   * properties in order (see fallbackSiteUrls), stopping at the first that is not refused. A fallback answer is labelled: `data` gains `requestedSiteUrl`,
+   * Runs `operation`; on a permission error retries once against the fallback
+   * property. A fallback answer is labelled: `data` gains `requestedSiteUrl`,
    * `answeredSiteUrl` and `note`, so the caller never reads another property's
    * numbers as the requested one (audit F8). A primary success is returned as-is.
    * If the fallback itself throws, the original permission error is its `cause`.
@@ -47,42 +47,32 @@ export class SearchConsoleService {
       return await operation();
     } catch (err) {
       if (err instanceof Error && err.message.toLowerCase().includes('permission')) {
-        let candidates: string[];
+        let candidate: string | undefined;
         try {
-          candidates = fallbackSiteUrls(siteUrl);
+          [candidate] = fallbackSiteUrls(siteUrl);
         } catch (urlErr) {
           // Keep Google's permission error reachable; the caller still sees the siteUrl message.
           throw urlErr instanceof Error ? new Error(urlErr.message, { cause: err }) : urlErr;
         }
-        if (candidates.length === 0) {
+        if (candidate === undefined) {
           throw err;
         }
-        // Try each candidate in order; move to the next only when this one is also refused for permission.
-        let result: T | undefined;
-        let candidate = candidates[0];
-        for (const [i, c] of candidates.entries()) {
-          candidate = c;
-          try {
-            result = await fallbackOperation(c);
-            break;
-          } catch (fallbackErr) {
-            const refused =
-              fallbackErr instanceof Error && fallbackErr.message.toLowerCase().includes('permission');
-            if (refused && i < candidates.length - 1) continue;
-            if (fallbackErr instanceof Error) {
-              const typed: PermissionFallbackError = fallbackErr;
-              // gaxios always sets its own cause (API detail), so overwrite; keep it reachable.
-              if (typed.cause !== undefined) {
-                typed.fallbackCause = typed.cause;
-              }
-              typed.cause = err;
-              typed.requestedSiteUrl = siteUrl ?? undefined;
-              typed.answeredSiteUrl = c;
+        let result: T;
+        try {
+          result = await fallbackOperation(candidate);
+        } catch (fallbackErr) {
+          if (fallbackErr instanceof Error) {
+            const typed: PermissionFallbackError = fallbackErr;
+            // gaxios always sets its own cause (API detail), so overwrite; keep it reachable.
+            if (typed.cause !== undefined) {
+              typed.fallbackCause = typed.cause;
             }
-            throw fallbackErr;
+            typed.cause = err;
+            typed.requestedSiteUrl = siteUrl ?? undefined;
+            typed.answeredSiteUrl = candidate;
           }
+          throw fallbackErr;
         }
-        if (result === undefined) throw err; // unreachable: the loop returns or throws
         const data =
           typeof result.data === 'object' && result.data !== null && !Array.isArray(result.data)
             ? result.data
