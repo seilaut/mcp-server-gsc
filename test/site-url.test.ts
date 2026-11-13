@@ -7,8 +7,8 @@ test('sc-domain: input has no fallback candidates and is never rewritten', () =>
   assert.deepEqual(fallbackSiteUrls('sc-domain:www.example.com'), []);
 });
 
-test('https URL-prefix property falls back to the bare domain property', () => {
-  assert.deepEqual(fallbackSiteUrls('https://www.example.com/'), ['sc-domain:example.com']);
+test('https URL-prefix property falls back to the bare domain property, then the www. form', () => {
+  assert.deepEqual(fallbackSiteUrls('https://www.example.com/'), ['sc-domain:example.com', 'sc-domain:www.example.com']);
 });
 
 test('http URL-prefix property falls back to the domain property (current behaviour)', () => {

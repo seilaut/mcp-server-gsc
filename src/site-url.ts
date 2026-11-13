@@ -25,7 +25,10 @@ export function truncateForError(value: string, max: number = MAX_ECHO): string 
 /**
  * Alternative property names to try when a query is refused for permission.
  * - sc-domain: input is never rewritten and has no candidates.
- * - http(s) URL-prefix input falls back to the domain property for its hostname without a leading "www.".
+ * - http(s) URL-prefix input falls back to the domain property for its hostname. When the hostname
+ *   starts with "www.", the bare domain comes first and the "www." form second: Google's help page
+ *   (https://support.google.com/webmasters/answer/34592) appears to say a Domain property has no
+ *   "www.", but that is unverified against a real account, so both are tried.
  * - anything else (bare host, empty, missing) throws a clear Error.
  */
 export function fallbackSiteUrls(url: string | null | undefined): string[] {
@@ -42,8 +45,10 @@ export function fallbackSiteUrls(url: string | null | undefined): string[] {
     throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
   }
   if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-    // A Domain property never carries a leading "www.", so the candidate is the bare domain.
-    return [`sc-domain:${parsedUrl.hostname.replace(/^www\./, '')}`];
+    const host = parsedUrl.hostname;
+    const bare = host.replace(/^www\./, '');
+    // Bare domain first (the usual form); the "www." form second for an account that holds it.
+    return bare === host ? [`sc-domain:${host}`] : [`sc-domain:${bare}`, `sc-domain:${host}`];
   }
   throw new Error(`Invalid siteUrl "${truncateForError(url)}". ${ACCEPTED_FORMS}`);
 }
