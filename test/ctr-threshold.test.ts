@@ -36,6 +36,13 @@ test('the default threshold (2) is exact at 0.02 too, and 0.0201 is out', () => 
   assert.equal(detectQuickWins([row(0.0201)]).length, 0);
 });
 
+// No double near 0.02 separates the old float comparison from the exact one (0.02 * 100 is exactly 2),
+// so the default threshold cannot prove T5.1.10; the 0.07 / 7 case above does (0.07 * 100 is 7.000000000000001).
+// This only pins the next double above 0.02 (float product 2.0000000000000004) as excluded.
+test('the default threshold (2) excludes the next double above 0.02', () => {
+  assert.equal(detectQuickWins([row(0.020000000000000004)]).length, 0);
+});
+
 test('a missing ctr counts as 0 and passes', () => {
   assert.equal(detectQuickWins([{ ...row(0.01), ctr: undefined }], { maxCtr: 1 }).length, 1);
 });
