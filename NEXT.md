@@ -4,14 +4,14 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 83% · Δ +0 since 2026-11-12 · scope 90 tasks (+0) · hours 3.1 · cost $147.95 · plan @8f016a30
+Progress: 88% · Δ +0 since 2026-11-13 · scope 93 tasks (+0) · hours 3.1 · cost $147.95 · plan @b40ce430
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
-| I3 Security | 67 | 9/18 | in progress | E3.1, E3.5 |
+| I3 Security | 74 | 10/18 | in progress | E3.1, E3.5 |
 | I4 End product | 92 | 11/12 | in progress | E4.2 |
-| I5 Review follow-ups 2026-11-04 | 33 | 10/12 | in progress | E5.2, E5.3 |
+| I5 Review follow-ups 2026-11-04 | 67 | 14/15 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
@@ -30,8 +30,8 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 12 (ready 1, queued 0, waiting 11) · verified this session: T3.4.1, T3.5.4, T3.5.5, T4.2.1, T5.1.7, T3.5.12, T4.2.2, T3.5.7, T5.1.8, T3.1.12, T3.5.8, T5.1.9, T5.1.10 · reopened: none · flat sessions: 0 · ledger @56
-Reasons: waiting on Diego (approval): T3.1.14 (after T3.5.6), T3.5.2, T3.5.3, T3.5.6, T4.2.6 (after T3.5.2) +1 more; waiting on Diego (blocker): T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1), T5.2.1
+State: completely blocked · left: 10 (ready 0, queued 0, waiting 10) · verified this session: — · reopened: none · flat sessions: 0 · ledger @61
+Reasons: waiting on Diego (approval): T3.1.14 (after T3.5.6), T3.5.2, T3.5.3, T3.5.6, T4.2.6 (after T3.5.2); waiting on Diego (blocker): T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1), T5.2.1
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
