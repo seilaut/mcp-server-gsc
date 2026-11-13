@@ -108,6 +108,4 @@ The fix is a major upgrade (zod 3.25.76 to 4.6.7). The decision is T3.5.4 (await
 
 Note 2026-11-12 (T3.5.12): the Dockerfile, `smithery.yaml` and `pnpm-lock.yaml` were removed, so this path no longer exists. The text above is kept as written on its date.
 
-2026-11-13: the Dockerfile and pnpm-lock.yaml were removed (T3.5.12); the lines above describe the state before that.
-
 The audit (F4) also found 11 vulnerable production packages in `pnpm-lock.yaml`, 1 of them critical (`proxy-addr@2.0.7`, GHSA-jqcg-44mw-7w3h). The Dockerfile installs from that lockfile, so the results above do not cover the Docker path. (Removed 2026-11-12, T3.5.12: see the note above.)
