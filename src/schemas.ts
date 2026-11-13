@@ -3,6 +3,8 @@ import { z } from 'zod';
 // YYYY-MM-DD, and a real calendar day (rejects 2026-02-30). The message is fixed text, never the input.
 const DATE_MESSAGE = 'Must be a date in YYYY-MM-DD format';
 // One refine (not regex + refine) so a malformed date reports one issue.
+// A factory, not a shared instance. Checked 2026-11-13: zod 4's z.toJSONSchema(..., { io: 'input' })
+// does not emit a $ref for a shared instance, so this is kept for safety (it was needed with zod 3).
 const dateString = () =>
   z.string().refine((v) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
