@@ -225,3 +225,5 @@ ts	session	event	id	detail	model	evidence
 2026-11-12T07:52:52.154Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	rollup		pct=83;total=90;done=40		
 2026-11-12T07:52:52.425Z	local	rollup		pct=83;total=90;done=40		
 2026-11-12T07:52:52.496Z	local	direction		state=blocked		
+2026-11-12T07:53:00.760Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	direction		state=blocked		
+2026-11-13T10:40:53.325Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	ac_timeout	T3.5.7	killed after 1.7s (budget)		

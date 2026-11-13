@@ -30,7 +30,7 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 12 (ready 1, queued 0, waiting 11) · verified this session: — · reopened: none · flat sessions: 0 · ledger @56
+State: blocked · left: 12 (ready 1, queued 0, waiting 11) · verified this session: T3.4.1, T3.5.4, T3.5.5, T4.2.1, T5.1.7, T3.5.12, T4.2.2, T3.5.7, T5.1.8, T3.1.12, T3.5.8, T5.1.9, T5.1.10 · reopened: none · flat sessions: 0 · ledger @56
 Reasons: waiting on Diego (approval): T3.1.14 (after T3.5.6), T3.5.2, T3.5.3, T3.5.6, T4.2.6 (after T3.5.2) +1 more; waiting on Diego (blocker): T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1), T5.2.1
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
