@@ -4,14 +4,14 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 94% · Δ +3 since 2026-11-14 · scope 98 tasks (+5) · hours 3.1 · cost $147.95 · plan @d6d68a67
+Progress: 96% · Δ +0 since 2026-11-14 · scope 98 tasks (+0) · hours 3.1 · cost $147.95 · plan @08d8e889
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
 | I3 Security | 93 | 14/16 | in progress | E3.5 |
 | I4 End product | 92 | 11/12 | in progress | E4.2 |
-| I5 Review follow-ups 2026-11-04 | 67 | 14/20 | in progress | E5.2 |
+| I5 Review follow-ups 2026-11-04 | 89 | 18/20 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
@@ -30,7 +30,7 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: blocked · left: 9 (ready 4, queued 0, waiting 5) · verified this session: — · reopened: none · flat sessions: 0 · ledger @63
+State: completely blocked · left: 5 (ready 0, queued 0, waiting 5) · verified this session: — · reopened: none · flat sessions: 0 · ledger @69
 Reasons: waiting on Diego (approval): T3.5.2, T3.5.6, T4.2.6 (after T3.5.2), T5.2.6 (after T3.5.2); waiting on Diego (blocker): T5.2.1
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
@@ -66,6 +66,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - 2026-11-09 — **Diego: the build ran in an Opus chat as a one-time exception** ("Start and keep this model just for this exception"). Implementers were Sonnet; reviewers were Sonnet, Haiku or Opus by risk. The controller's rulings, each with what it costs if wrong, are in `docs/audit/2026-11-09-review-residuals.md` under "Recorded rulings".
 
 ## Blockers / awaiting you
+- **Follow-ups from the T5.2.2-T5.2.5 review, 2026-11-14** (domain: docs/tests, awaiting: build): README.md ~183-207 still has the "Regex Filter (enhanced_search_analytics)" and "Quick Wins (detect_quick_wins)" examples under `### get_sitemap`; the import scanner misses `export … from` re-exports and indented imports and can false-positive inside block comments; T5.2.4's AC greps a test name rather than running the scanner; the v1 argument tests compare JSON strings (key order sensitive). Diego steps (key, sharing, live check, his lines) are in docs/audit/2026-11-14-rulings.md section 4.
 - ~~T3.1.2's criterion no longer runs~~ Decided 2026-11-12 (Diego): Claude copies the guard script to scripts/ci/guards.sh. Was: Found 2026-11-09 (Current position). Diego chooses one: put a copy of the guard at `scripts/ci/guards.sh`, the layout bootstrap uses (a code change, then the criterion passes as written); or change the criterion, which needs his line `- <date> — T3.1.2 criterion differs from the template: accepted by Diego: <AC>`.
 - ~~T1.3.3 reopened 2026-11-05 on seilaut-new's checkout (dangling `node_modules/buffer-equal-constant-time` link).~~ Resolved on seilaut-master: `--run-ac` ticked it at 2026-11-09T16:57:04Z, and the criterion re-ran by hand on 2026-11-10 with exit 0 (`node_modules/buffer-equal-constant-time` is a real folder on this Mac). On seilaut-new the link may still dangle; `npm ci` there would clear it.
 - Decisions only Diego can make. None of them blocks tonight's tasks; the tasks that depend on them carry `after:`.
