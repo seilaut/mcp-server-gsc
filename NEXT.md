@@ -36,6 +36,7 @@ Reasons: waiting on Diego (blocker): T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (aft
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
 ## Decisions
+- 2026-11-14 (Diego, pop-up answers, recorded by Claude): T3.5.1 — delete the Worker (no gsc Worker exists in the Cloudflare account: workers_list 2026-11-14 shows only fcw-*, seilaut-service-gates, seilaut-com, seilaut-com-site); T3.5.11 starts. T3.5.3 — the service account reads all of Diego's Search Console properties, read-only (Restricted). The ticks of T3.5.1 and T3.5.3 and the drop of T3.5.9 and T3.5.10 wait for Diego's typed lines.
 - 2026-11-13 — T3.1.2 criterion differs from the template: accepted by Diego: `GUARDS_PROJECT_TOP="$PWD" bash ~/.claude/skills/bootstrap/assets/guards.sh >/dev/null && gitleaks dir dist --no-banner --redact --exit-code 1 && test "$(grep -l 'process\.env' src/*.ts)" = src/index.ts` exit 0 [fast]
 - 2026-11-13 — gsc T5.3.1 approved by Diego: fix 2, 10; accept 1, 5, 6, 8 (Google's help page rules out www. Domain properties, checked 2026-11-13), 9; drop 3, 4 (already fixed); 7 settled by the T3.1.2 line
 - 2026-11-13 — gsc approved by Diego: update hono and @hono/node-server to clear the two moderate advisories of 2026-11-13
