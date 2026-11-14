@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server providing comprehensive access to Google S
 
 - **Search analytics**: performance data from Search Console, up to 25,000 rows per request (default 1,000)
 - **Filters**: page, query, country and device filters, with the operators listed below
-- **Quick wins**: `detect_quick_wins`, or `enableQuickWins` on `enhanced_search_analytics`, lists queries that rank on page one or two but get few clicks
+- **Quick wins**: `detect_quick_wins`, or `enableQuickWins` on `enhanced_search_analytics`, lists queries that rank on page one (positions 4-10 by default; widen with `positionRangeMax`) but get few clicks
 - **Sites, sitemaps and URL inspection**: list sites, list and get sitemaps, inspect a URL
 
 ### Sponsored by
@@ -121,6 +121,18 @@ Get search performance data from Google Search Console.
 
 The regex operators pass your expression to Search Console as written. There is no `regex:` prefix: write the pattern itself.
 
+**Example - Basic Query (search_analytics):**
+
+```json
+{
+  "siteUrl": "https://example.com",
+  "startDate": "2024-01-01",
+  "endDate": "2024-01-31",
+  "dimensions": "query,page",
+  "rowLimit": 5000
+}
+```
+
 ### enhanced_search_analytics
 
 Takes every parameter of `search_analytics`, and adds:
@@ -167,18 +179,6 @@ Inspect a URL to see if it is indexed or can be indexed.
 - `feedpath` (required): URL of the sitemap
 
 The server requests only the read-only Search Console scope (`webmasters.readonly`) and has no tool that changes anything in Search Console. It does not submit sitemaps.
-
-**Example - Basic Query:**
-
-```json
-{
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
-  "dimensions": "query,page",
-  "rowLimit": 5000
-}
-```
 
 **Example - Regex Filter (enhanced_search_analytics):**
 

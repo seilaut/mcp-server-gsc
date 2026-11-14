@@ -23,10 +23,16 @@ test('a row with no position is excluded by the default position range', () => {
   assert.deepEqual(out.map(r => r.query), ['kept']);
 });
 
-test('a row without position is treated as position 0: intended or a bug?', { todo: 'open question for Diego; the body records what the code does today' }, () => {
-  const out = detectQuickWins([row({ position: undefined })], { positionRangeMin: 0 });
-  assert.equal(out.length, 1);
-  assert.equal(out[0].currentPosition, 0);
-  assert.equal(out[0].optimizationNote, 'Move from position 0.0 to improve CTR');
+test('positionRangeMin 0 still returns no row for an undefined or null position', () => {
+  assert.deepEqual(detectQuickWins([row({ position: undefined })], { positionRangeMin: 0 }), []);
+  assert.deepEqual(detectQuickWins([row({ position: null })], { positionRangeMin: 0 }), []);
+  assert.deepEqual(detectQuickWins([row({ position: NaN })], { positionRangeMin: 0 }), []);
+});
+
+test('no output contains "position 0.0" when position-less rows sit beside a real one', () => {
+  const rows = [row({ position: undefined }), row({ position: null }), row({ keys: ['kept'], position: 5 })];
+  const out = detectQuickWins(rows, { positionRangeMin: 0 });
+  assert.deepEqual(out.map(r => r.query), ['kept']);
+  assert.ok(!JSON.stringify(out).includes('position 0.0'));
   assert.ok(!JSON.stringify(out).includes('NaN'));
 });

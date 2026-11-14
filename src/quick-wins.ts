@@ -55,7 +55,11 @@ export function detectQuickWins(
   return rows
     .filter(row => {
       const impressions = row.impressions || 0;
-      const position = row.position || 0;
+      const position = row.position;
+
+      // Positions start at 1, so a missing position is never a real 0: skip the row
+      // whatever the range, rather than report an invented "position 0.0".
+      if (typeof position !== 'number' || !Number.isFinite(position)) return false;
 
       return impressions >= minImpressions &&
              ctrAtOrBelow(row.ctr, maxCtr) &&
@@ -66,7 +70,7 @@ export function detectQuickWins(
       const impressions = row.impressions || 0;
       const currentClicks = row.clicks || 0;
       const currentCtr = ctrToPercent(row.ctr);
-      const position = row.position || 0;
+      const position: number = row.position;
 
       // Calculate potential with 5% target CTR
       const targetCtr = 5.0;
