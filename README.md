@@ -82,10 +82,6 @@ Point `command` at Node and `args` at the `dist/index.js` you built (use the abs
 }
 ```
 
-### Remote (Cloudflare Worker)
-
-`src/remote.ts` serves the same tools over HTTP at `/mcp` (health check at `/health`). It reads the `GOOGLE_CREDENTIALS` secret (same value format as above). If `MCP_API_TOKEN` is set, requests need that bearer token. If it is not set, `/mcp` has no authentication: anyone who finds the URL can call the tools and read every property the service account can see, so set the token before you deploy. Whether to keep the Worker at all is still an open decision (T3.5.1). `CORS_ORIGIN` sets the allowed origin (default `*`). Scripts: `npm run dev:remote`, `npm run deploy`.
-
 ### Permission fallback
 
 When Search Console refuses permission for the property you named, `search_analytics`, `enhanced_search_analytics`, `detect_quick_wins` and the two sitemap tools retry once against the domain property (`sc-domain:<hostname>`, with a leading `www.` removed because a Domain property never carries it and already covers both the `www.` and non-`www.` hosts: Google's help page, https://support.google.com/webmasters/answer/34592, checked 2026-11-13) of an `http://` or `https://` `siteUrl`; an `sc-domain:` `siteUrl` is never retried. A fallback answer carries `requestedSiteUrl`, `answeredSiteUrl` and `note` in the result, because its numbers can cover more than the property you asked for. `detect_quick_wins` carries the same three fields on its "No data available" message when the fallback returned no rows. If the retry itself fails, the cause of the error the server raises is the retry's own error, and Google's original permission error is that error's `cause` (the retry's error, with that cause, is logged on the server's stderr), but the client sees only the error message: the retry's message, plus the property you asked for and the one retried. Google's original permission reason is not sent to the client. `list_sites` and `index_inspect` do not retry.

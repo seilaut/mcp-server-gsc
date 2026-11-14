@@ -22,5 +22,5 @@ node --import tsx --test test/schemas.test.ts   # one focused test file
 
 ## Rules for this repo
 - Nothing in tests or checks may call Google. Mock at the boundary the existing tests use.
-- Never write a credential value into a file. The server reads `GOOGLE_APPLICATION_CREDENTIALS` (inline JSON or a key-file path); the Worker reads `GOOGLE_CREDENTIALS`.
+- Never write a credential value into a file. The server reads `GOOGLE_APPLICATION_CREDENTIALS` (inline JSON or a key-file path).
 - Do not change dependencies without a task that says so.
