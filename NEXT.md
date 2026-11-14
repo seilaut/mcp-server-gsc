@@ -4,12 +4,12 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 91% · Δ +0 since 2026-11-14 · scope 93 tasks (+0) · hours 3.1 · cost $147.95 · plan @fc92d202
+Progress: 94% · Δ +3 since 2026-11-14 · scope 93 tasks (+0) · hours 3.1 · cost $147.95 · plan @4c313a30
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
-| I3 Security | 83 | 12/18 | in progress | E3.5 |
+| I3 Security | 93 | 14/16 | in progress | E3.5 |
 | I4 End product | 92 | 11/12 | in progress | E4.2 |
 | I5 Review follow-ups 2026-11-04 | 67 | 14/15 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
@@ -30,12 +30,16 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 8 (ready 0, queued 0, waiting 8) · verified this session: — · reopened: none · flat sessions: 0 · ledger @63
-Reasons: waiting on Diego (blocker): T3.5.1, T3.5.3, T3.5.9, T3.5.10, T5.2.1; waiting on Diego (approval): T3.5.2, T3.5.6, T4.2.6 (after T3.5.2)
+State: completely blocked · left: 4 (ready 0, queued 0, waiting 4) · verified this session: — · reopened: none · flat sessions: 0 · ledger @63
+Reasons: waiting on Diego (approval): T3.5.2, T3.5.6, T4.2.6 (after T3.5.2); waiting on Diego (blocker): T5.2.1
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
 ## Decisions
+- 2026-11-14 — gsc T3.5.1 approved by Diego: delete the Worker
+- 2026-11-14 — gsc T3.5.3 approved by Diego: all Search Console properties, read-only
+- 2026-11-14 — T3.5.9 drop accepted by Diego
+- 2026-11-14 — T3.5.10 drop accepted by Diego
 - 2026-11-14 (Diego, pop-up answers, recorded by Claude): T3.5.1 — delete the Worker (no gsc Worker exists in the Cloudflare account: workers_list 2026-11-14 shows only fcw-*, seilaut-service-gates, seilaut-com, seilaut-com-site); T3.5.11 starts. T3.5.3 — the service account reads all of Diego's Search Console properties, read-only (Restricted). The ticks of T3.5.1 and T3.5.3 and the drop of T3.5.9 and T3.5.10 wait for Diego's typed lines.
 - 2026-11-13 — T3.1.2 criterion differs from the template: accepted by Diego: `GUARDS_PROJECT_TOP="$PWD" bash ~/.claude/skills/bootstrap/assets/guards.sh >/dev/null && gitleaks dir dist --no-banner --redact --exit-code 1 && test "$(grep -l 'process\.env' src/*.ts)" = src/index.ts` exit 0 [fast]
 - 2026-11-13 — gsc T5.3.1 approved by Diego: fix 2, 10; accept 1, 5, 6, 8 (Google's help page rules out www. Domain properties, checked 2026-11-13), 9; drop 3, 4 (already fixed); 7 settled by the T3.1.2 line
