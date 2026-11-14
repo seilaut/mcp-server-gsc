@@ -25,8 +25,7 @@ Post-remediation score: **0 vulnerabilities** (`npm audit` clean) as of 2026-10-
 
 ### TypeScript compatibility
 
-The `hono` upgrade (4.12 → 4.13) introduced a stricter type for `bearerAuth()` middleware.  
-Applied a `c as any` cast in `src/remote.ts:23` — runtime behavior unchanged, cast is scoped to the single middleware invocation.
+The `hono` bearer-auth cast that once lived in `src/remote.ts` is gone: the Worker was deleted on 2026-11-14 (T3.5.11).
 
 ### Packages changed
 

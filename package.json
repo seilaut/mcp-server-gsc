@@ -15,19 +15,15 @@
     "build": "tsc && shx chmod +x dist/*.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "test": "node --import tsx --test test/*.test.ts",
-    "dev:remote": "wrangler dev src/remote.ts",
-    "deploy": "wrangler deploy src/remote.ts"
+    "test": "node --import tsx --test test/*.test.ts"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
-    "@hono/mcp": "^0.2.3",
     "@modelcontextprotocol/sdk": "^1.24.3",
     "google-auth-library": "^11.3.0",
     "googleapis": "^186.0.0",
-    "hono": "^4.12.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
@@ -35,7 +31,6 @@
     "gaxios": "^7.3.1",
     "shx": "^0.3.4",
     "tsx": "^4.23.15",
-    "typescript": "^5.7.2",
-    "wrangler": "^4.67.0"
+    "typescript": "^5.7.2"
   }
 }
