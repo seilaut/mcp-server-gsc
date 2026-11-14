@@ -1,15 +1,15 @@
 # NEXT — mcp-server-gsc-fork status
 
-**Updated:** 2026-11-10 · **Plan:** PLAN.md · **Spec:** — · **Live:** unknown (stdio server; a Cloudflare Worker entry exists, deployment unverified)
+**Updated:** 2026-11-10 · **Plan:** PLAN.md · **Spec:** — · **Live:** unknown (stdio server only; the Worker entry was deleted 2026-11-14, T3.5.11)
 
 ## Current position
 <!-- progress:begin -->
-Progress: 90% · Δ +0 since 2026-11-13 · scope 93 tasks (+0) · hours 3.1 · cost $147.95 · plan @8f03de3a
+Progress: 91% · Δ +0 since 2026-11-14 · scope 93 tasks (+0) · hours 3.1 · cost $147.95 · plan @fc92d202
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
-| I3 Security | 81 | 11/18 | in progress | E3.5 |
+| I3 Security | 83 | 12/18 | in progress | E3.5 |
 | I4 End product | 92 | 11/12 | in progress | E4.2 |
 | I5 Review follow-ups 2026-11-04 | 67 | 14/15 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
@@ -30,8 +30,8 @@ Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 9 (ready 0, queued 0, waiting 9) · verified this session: — · reopened: none · flat sessions: 0 · ledger @62
-Reasons: waiting on Diego (blocker): T3.5.1, T3.5.9 (after T3.5.1), T3.5.10 (after T3.5.1), T3.5.11 (after T3.5.1), T5.2.1; waiting on Diego (approval): T3.5.2, T3.5.3, T3.5.6, T4.2.6 (after T3.5.2)
+State: completely blocked · left: 8 (ready 0, queued 0, waiting 8) · verified this session: — · reopened: none · flat sessions: 0 · ledger @63
+Reasons: waiting on Diego (blocker): T3.5.1, T3.5.3, T3.5.9, T3.5.10, T5.2.1; waiting on Diego (approval): T3.5.2, T3.5.6, T4.2.6 (after T3.5.2)
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
@@ -77,7 +77,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - ~~Not in the plan yet~~ Now T5.1.8 (Diego, 2026-11-12). `regexFilter` is silently dropped unless `dimensions` includes `query` (src/request-body.ts:86), so the user gets unfiltered numbers. The quick-wins output then claims `regexFilterApplied: true` (src/search-console.ts:144). README.md:97-98 and :132 promise a `regex:` prefix that no code handles. Pinned as `todo` tests in test/request-body.test.ts. T4.1.3 covers only the advertising part.
 - ~~Not in the plan~~ Now T5.1.9 (Diego, 2026-11-12): F8's `www.` prefix in the `sc-domain:www.…` fallback is tracked by no task. Leaving it as is stays the safer default.
 - ~~Not in the plan~~ Now T5.1.10 (Diego, 2026-11-12): an exact custom CTR threshold such as 7% is missed through floating point (`ctr*100 <= maxCtr`). The default of 2% is never affected.
-- The Worker's /mcp answers `initialize` and `tools/list` with NO auth while MCP_API_TOKEN is unset. Confirmed on HEAD by the final review (run in Node; workerd was not run). Decide in T3.5.1 whether to delete the Worker or set the token (domain: security, awaiting: user).
+- ~~The Worker's /mcp answers `initialize` and `tools/list` with NO auth while MCP_API_TOKEN is unset.~~ Resolved 2026-11-14: Diego chose delete (pop-up); merged 2d8c547 (T3.5.11), opus review merge. Ticks of T3.5.1/T3.5.3 and drops of T3.5.9/T3.5.10 wait for Diego's typed lines. After merge: run `npm ci` here (the worktree's lock regeneration touched this checkout's node_modules) and note `dist/remote.js` is a stale, git-ignored build output. Was: Confirmed on HEAD by the final review (run in Node; workerd was not run). Decide in T3.5.1 whether to delete the Worker or set the token (domain: security, awaiting: user).
 - If T4.2.1 grants the write scope, the permission fallback would submit a sitemap to a different property than the one asked for. Exclude submit_sitemap from the fallback first (domain: bug, awaiting: user).
 - ~~engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).~~ Resolved 2026-11-12: the Dockerfile was removed (T3.5.5 approved, T3.5.12 done).
 
@@ -97,7 +97,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 
   A live query needs Diego's key and a registration first (T3.5.2).
 - `package-lock.json` is the only lockfile. `pnpm-lock.yaml` and the Dockerfile were removed on 2026-11-12 (T3.5.12).
-- The Worker's `/mcp` has bearer auth only when `MCP_API_TOKEN` is set; without it the endpoint is open (audit F5).
+- ~~The Worker's `/mcp` has bearer auth only when `MCP_API_TOKEN` is set; without it the endpoint is open (audit F5).~~ Gone: Worker deleted 2026-11-14.
 
 ## Verify with
 - `npm run build`
