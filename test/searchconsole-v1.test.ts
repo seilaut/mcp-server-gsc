@@ -44,19 +44,32 @@ function service() {
   return svc;
 }
 
-const calls: Array<[string, string, (s: SearchConsoleService) => Promise<unknown>]> = [
-  ['searchAnalytics', 'searchanalytics.query', (s) => s.searchAnalytics('sc-domain:example.com', { startDate: '2026-01-01', endDate: '2026-01-02' })],
-  ['listSites', 'sites.list', (s) => s.listSites()],
-  ['listSitemaps', 'sitemaps.list', (s) => s.listSitemaps({ siteUrl: 'sc-domain:example.com' })],
-  ['getSitemap', 'sitemaps.get', (s) => s.getSitemap({ siteUrl: 'sc-domain:example.com', feedpath: 'https://example.com/s.xml' })],
+// [name, resource, call, exact arguments the recorder must log]. requestBody must stay nested
+// under the request for searchanalytics.query; the sitemap calls take the flat request.
+const calls: Array<[string, string, (s: SearchConsoleService) => Promise<unknown>, string]> = [
+  ['searchAnalytics', 'searchanalytics.query', (s) => s.searchAnalytics('sc-domain:example.com', { startDate: '2026-01-01', endDate: '2026-01-02' }),
+    'searchanalytics.query {"siteUrl":"sc-domain:example.com","requestBody":{"startDate":"2026-01-01","endDate":"2026-01-02"}}'],
+  ['listSites', 'sites.list', (s) => s.listSites(),
+    'sites.list null'],
+  ['listSitemaps', 'sitemaps.list', (s) => s.listSitemaps({ siteUrl: 'sc-domain:example.com' }),
+    'sitemaps.list {"siteUrl":"sc-domain:example.com"}'],
+  ['getSitemap', 'sitemaps.get', (s) => s.getSitemap({ siteUrl: 'sc-domain:example.com', feedpath: 'https://example.com/s.xml' }),
+    'sitemaps.get {"siteUrl":"sc-domain:example.com","feedpath":"https://example.com/s.xml"}'],
 ];
 
-for (const [name, resource, call] of calls) {
+for (const [name, resource, call, expected] of calls) {
   test(`${name} goes through Search Console v1, never Webmasters v3`, async () => {
     await withRecorders(async (log) => {
       await call(service());
       assert.deepEqual(log.filter((l) => l.startsWith('factory')), ['factory searchconsole v1']);
       assert.ok(log.some((l) => l.startsWith(`${resource} `)), `expected ${resource} in ${JSON.stringify(log)}`);
+    });
+  });
+
+  test(`${name} sends exactly the arguments Search Console v1 expects`, async () => {
+    await withRecorders(async (log) => {
+      await call(service());
+      assert.deepEqual(log.filter((l) => !l.startsWith('factory')), [expected]);
     });
   });
 }
