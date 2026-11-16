@@ -9,16 +9,21 @@ import { SearchConsoleService } from '../src/search-console.ts';
 type Factory = (options: { version?: string }) => unknown;
 const g = google as unknown as { searchconsole: Factory; webmasters: Factory };
 
-async function withRecorders(run: (log: string[]) => Promise<void>) {
-  const log: string[] = [];
+// Each entry is [method name, parsed arguments], or ['factory searchconsole' | 'factory webmasters', version]. Arguments are kept as objects
+// (deep-cloned through JSON so later mutation cannot change them) and compared with deepStrictEqual,
+// so key order never matters.
+type Entry = [string, unknown];
+
+async function withRecorders(run: (log: Entry[]) => Promise<void>) {
+  const log: Entry[] = [];
   const originalSc = g.searchconsole;
   const originalWm = g.webmasters;
   const method = (name: string) => async (params?: unknown) => {
-    log.push(`${name} ${JSON.stringify(params ?? null)}`);
+    log.push([name, params === undefined ? null : JSON.parse(JSON.stringify(params))]);
     return { data: {} };
   };
   g.searchconsole = (options) => {
-    log.push(`factory searchconsole ${options.version}`);
+    log.push(['factory searchconsole', options.version]);
     return {
       searchanalytics: { query: method('searchanalytics.query') },
       sites: { list: method('sites.list') },
@@ -27,7 +32,7 @@ async function withRecorders(run: (log: string[]) => Promise<void>) {
     };
   };
   g.webmasters = (options) => {
-    log.push(`factory webmasters ${options.version}`);
+    log.push(['factory webmasters', options.version]);
     throw new Error('the Webmasters v3 client must not be used');
   };
   try {
@@ -46,30 +51,30 @@ function service() {
 
 // [name, resource, call, exact arguments the recorder must log]. requestBody must stay nested
 // under the request for searchanalytics.query; the sitemap calls take the flat request.
-const calls: Array<[string, string, (s: SearchConsoleService) => Promise<unknown>, string]> = [
+const calls: Array<[string, string, (s: SearchConsoleService) => Promise<unknown>, unknown]> = [
   ['searchAnalytics', 'searchanalytics.query', (s) => s.searchAnalytics('sc-domain:example.com', { startDate: '2026-01-01', endDate: '2026-01-02' }),
-    'searchanalytics.query {"siteUrl":"sc-domain:example.com","requestBody":{"startDate":"2026-01-01","endDate":"2026-01-02"}}'],
+    { siteUrl: 'sc-domain:example.com', requestBody: { startDate: '2026-01-01', endDate: '2026-01-02' } }],
   ['listSites', 'sites.list', (s) => s.listSites(),
-    'sites.list null'],
+    null],
   ['listSitemaps', 'sitemaps.list', (s) => s.listSitemaps({ siteUrl: 'sc-domain:example.com' }),
-    'sitemaps.list {"siteUrl":"sc-domain:example.com"}'],
+    { siteUrl: 'sc-domain:example.com' }],
   ['getSitemap', 'sitemaps.get', (s) => s.getSitemap({ siteUrl: 'sc-domain:example.com', feedpath: 'https://example.com/s.xml' }),
-    'sitemaps.get {"siteUrl":"sc-domain:example.com","feedpath":"https://example.com/s.xml"}'],
+    { siteUrl: 'sc-domain:example.com', feedpath: 'https://example.com/s.xml' }],
 ];
 
 for (const [name, resource, call, expected] of calls) {
   test(`${name} goes through Search Console v1, never Webmasters v3`, async () => {
     await withRecorders(async (log) => {
       await call(service());
-      assert.deepEqual(log.filter((l) => l.startsWith('factory')), ['factory searchconsole v1']);
-      assert.ok(log.some((l) => l.startsWith(`${resource} `)), `expected ${resource} in ${JSON.stringify(log)}`);
+      assert.deepStrictEqual(log.filter(([n]) => n.startsWith('factory')), [['factory searchconsole', 'v1']]);
+      assert.ok(log.some(([n]) => n === resource), `expected ${resource} in ${JSON.stringify(log)}`);
     });
   });
 
   test(`${name} sends exactly the arguments Search Console v1 expects`, async () => {
     await withRecorders(async (log) => {
       await call(service());
-      assert.deepEqual(log.filter((l) => !l.startsWith('factory')), [expected]);
+      assert.deepStrictEqual(log.filter(([n]) => !n.startsWith('factory')), [[resource, expected]]);
     });
   });
 }

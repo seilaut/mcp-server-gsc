@@ -143,6 +143,20 @@ Takes every parameter of `search_analytics`, and adds:
 
 When `enableQuickWins` is on and rows come back, the response also carries `enhancedFeatures`, whose `regexFilterApplied` field is true only when a `regexFilter` was sent to Search Console, and false when none was given.
 
+**Example - Regex Filter (enhanced_search_analytics):**
+
+```json
+{
+  "siteUrl": "https://example.com",
+  "startDate": "2024-01-01",
+  "endDate": "2024-01-31",
+  "dimensions": "page,query",
+  "regexFilter": "(AI|machine learning|ML)",
+  "deviceFilter": "MOBILE",
+  "rowLimit": 10000
+}
+```
+
 ### detect_quick_wins
 
 Finds queries that rank just off the top but earn few clicks. It always queries by `query` and `page` with up to 25,000 rows.
@@ -159,6 +173,20 @@ Finds queries that rank just off the top but earn few clicks. It always queries 
 - `positionRangeMax`: Maximum position (default: `10`)
 
 The result lists `quickWins`, `totalOpportunities` and the `thresholds` used. Each quick win estimates the extra clicks at a 5% CTR.
+
+**Example - Quick Wins (detect_quick_wins):**
+
+```json
+{
+  "siteUrl": "https://example.com",
+  "startDate": "2024-01-01",
+  "endDate": "2024-01-31",
+  "minImpressions": 500,
+  "maxCtr": 2,
+  "positionRangeMin": 4,
+  "positionRangeMax": 15
+}
+```
 
 ### index_inspect
 
@@ -179,34 +207,6 @@ Inspect a URL to see if it is indexed or can be indexed.
 - `feedpath` (required): URL of the sitemap
 
 The server requests only the read-only Search Console scope (`webmasters.readonly`) and has no tool that changes anything in Search Console. It does not submit sitemaps.
-
-**Example - Regex Filter (enhanced_search_analytics):**
-
-```json
-{
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
-  "dimensions": "page,query",
-  "regexFilter": "(AI|machine learning|ML)",
-  "deviceFilter": "MOBILE",
-  "rowLimit": 10000
-}
-```
-
-**Example - Quick Wins (detect_quick_wins):**
-
-```json
-{
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
-  "minImpressions": 500,
-  "maxCtr": 2,
-  "positionRangeMin": 4,
-  "positionRangeMax": 15
-}
-```
 
 ## License
 
