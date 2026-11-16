@@ -1,6 +1,6 @@
 # NEXT — mcp-server-gsc-fork status
 
-**Updated:** 2026-11-10 · **Plan:** PLAN.md · **Spec:** — · **Live:** unknown (stdio server only; the Worker entry was deleted 2026-11-14, T3.5.11)
+**Updated:** 2026-11-16 · **Plan:** PLAN.md · **Spec:** — · **Live:** unknown (stdio server only; the Worker entry was deleted 2026-11-14, T3.5.11)
 
 ## Current position
 <!-- progress:begin -->
@@ -14,19 +14,9 @@ Progress: 96% · Δ +0 since 2026-11-14 · scope 98 tasks (+0) · hours 3.1 · c
 | I5 Review follow-ups 2026-11-04 | 89 | 18/20 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
-On 2026-11-04 (seilaut-master) the audit, the plan rewrite and the build ran on branch `work/2026-11-04`. 18 tasks were ticked by `progress.mjs --run-ac` after a task review: the build and startup checks; the test harness with schemas, handshake, quick-wins maths, request bodies, credentials, site URL, permission fallback, quick-wins calls, validation and capabilities tests; the dependency advisories and the dead override; REMEDIATION.md; the scanner checks; the F8 site-URL and fallback-labelling fixes; detect_quick_wins making one call; tighter input validation; tools-only capabilities; and engines >=22. The final whole-branch review (Opus) found it ready to merge. On HEAD 0ef3311: `npm test` 94 tests, 92 pass, 0 fail, 2 todo; `tsc --noEmit` exit 0; `npm run build` exit 0. `wrangler deploy --dry-run` bundles (35.7 MiB raw, 1.19 MiB gzip). `wrangler dev` cannot run on macOS 12 (workerd dyld error). `npm audit --omit=dev` leaves only zod, which waits on T3.5.4. Nothing is deployed and nothing ran against Google.
-Checked 2026-11-09 on seilaut-master: at 29bcc8c, `npm test` gave 94 tests, 92 pass, 0 fail, 2 todo. The merge of 874024a that followed changed only NEXT.md, PLAN.md and the ledger, so no code changed and the suite was not re-run. `wrangler whoami` says not authenticated. `gh api repos/seilaut/mcp-server-gsc` gives `dgusti59` push true (no real push tried).
-Stage 1 of the 2026-11-09 order (`progress.mjs --run-ac --only`, 16:4x CET): T1.3.3 passed and is ticked. T3.1.2 failed with exit 2: `guards.sh`, called from `~/.claude/skills/bootstrap/assets/`, now refuses to run unless it sits at `<repo>/scripts/ci/guards.sh` (a change in `~/.claude`, not in this repo). Its other two parts pass: gitleaks over `dist/` exits 0, and only `src/index.ts` reads `process.env`. iCloud had also removed 10 files under `node_modules/`; restore requested with `brctl download` on 2026-11-09, still arriving.
-
-Stage 2 of the 2026-11-09 order, on seilaut-master, commits `55d6514..076ee3a`:
-- **Built, reviewed and ticked through `--run-ac`:** T4.2.5, T5.1.6, T4.2.3, T5.1.3, T5.1.4, T5.1.2, T5.1.5, T5.1.1, T4.1.6. With T1.3.3 from Stage 1, that is 10 tasks.
-- **T4.1.6 moves the client from Webmasters v3 to Search Console v1.** Its first version had changed the OAuth scope to a string that is not a Google scope; the review caught it, the scope is back to `webmasters.readonly`, and a test now asserts it.
-- **Final whole-run review (opus):** 1 Important, fixed in one wave and re-reviewed. README now warns that `/mcp` answers anyone without `MCP_API_TOKEN`; CLAUDE.md names the test type-check; `truncateForError` no longer allocates in proportion to a huge input.
-- **Unfixed findings:** `docs/audit/2026-11-09-review-residuals.md` (1a15b91), tracked as T5.2.1.
-- **Incident:** from 18:33 to about 18:40 a stray `node_modules/node_modules` link (pointing at the funnel's packages, created by another agent's temporary worktree) broke every server test here; it was removed and the tests passed again.
-- **Tests:** the focused files pass at HEAD (the final reviewer ran fallback-errors 11, input-echo 5, searchconsole-v1 6, site-url 7, repo-config 2, quick-wins-rounding 3 plus 1 todo); both type-checks exit 0.
-- **Full suite:** `npm test` at 8a189e6 on 2026-11-09, about 19:50 CET: 123 tests, 120 pass, 0 fail, 3 todo.
-- **Pushed to GitHub on Diego's word on 2026-11-09 at 20:00 CET (`origin/work/2026-11-04`), after clean `key-scan.sh --push` and `gitleaks` runs over every unpushed commit.** Not deployed.
+Status 2026-11-16 (seilaut-master): branch `work/2026-11-04` pushed to GitHub at aa9b504. The Cloudflare Worker was deleted on 2026-11-14 (T3.5.11, 2d8c547), so only the local stdio server exists. Full `npm test` after the T5.2.2-T5.2.5 merge (f00512d, 2026-11-14): 144 tests, no failure.
+- Every Claude task is done. What is left is Diego's, listed in `docs/audit/2026-11-14-rulings.md` section 4: a new service-account key outside every repo (T3.5.2), sharing the Search Console properties with it read-only, his live check (T4.2.6, T5.2.6), and his own approval lines for T3.5.6 and T5.2.1.
+- Older detail (2026-11-04 audit, 2026-11-09 waves) is in git history and `docs/audit/`.
 
 ## Direction
 <!-- direction:begin -->
@@ -70,9 +60,9 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - ~~T3.1.2's criterion no longer runs~~ Decided 2026-11-12 (Diego): Claude copies the guard script to scripts/ci/guards.sh. Was: Found 2026-11-09 (Current position). Diego chooses one: put a copy of the guard at `scripts/ci/guards.sh`, the layout bootstrap uses (a code change, then the criterion passes as written); or change the criterion, which needs his line `- <date> — T3.1.2 criterion differs from the template: accepted by Diego: <AC>`.
 - ~~T1.3.3 reopened 2026-11-05 on seilaut-new's checkout (dangling `node_modules/buffer-equal-constant-time` link).~~ Resolved on seilaut-master: `--run-ac` ticked it at 2026-11-09T16:57:04Z, and the criterion re-ran by hand on 2026-11-10 with exit 0 (`node_modules/buffer-equal-constant-time` is a real folder on this Mac). On seilaut-new the link may still dangle; `npm ci` there would clear it.
 - Decisions only Diego can make. None of them blocks tonight's tasks; the tasks that depend on them carry `after:`.
-  - T3.5.1: the Worker (delete or keep; is one deployed?)
+  - ~~T3.5.1: the Worker~~ deleted 2026-11-14 (Diego's line in Decisions)
   - T3.5.2: the service-account key
-  - T3.5.3: which properties, and at what permission level
+  - ~~T3.5.3: which properties~~ all of Diego's properties, read-only (Diego's line, 2026-11-14)
   - ~~T3.5.4: zod 4~~ decided 2026-11-12
   - ~~T3.5.5: removing Docker, Smithery and pnpm~~ decided 2026-11-12
   - T3.5.6: Dependabot alerts. Turned on 2026-11-13 in the seilaut GitHub account (Claude, in Diego's seilaut Chrome; GitHub showed "Repository settings saved"). The T3.1.14 check needs a gh login as seilaut: seilaut is a personal account, so dgusti59 cannot be made admin. Diego runs `gh auth login` for seilaut (the auto-mode classifier refused it for Claude).
@@ -86,13 +76,7 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - If T4.2.1 grants the write scope, the permission fallback would submit a sitemap to a different property than the one asked for. Exclude submit_sitemap from the fallback first (domain: bug, awaiting: user).
 - ~~engines >=22 versus the node:18 Dockerfile: the Docker build will probably refuse to run. This is inferred from pnpm's documented behaviour and was not run. It is part of T3.5.5 (domain: build, awaiting: user).~~ Resolved 2026-11-12: the Dockerfile was removed (T3.5.5 approved, T3.5.12 done).
 
-- **T5.2.1: rule on the 2026-11-09 review residuals** (domain: decision, awaiting: user). `docs/audit/2026-11-09-review-residuals.md` lists:
-  - 4 items to settle before any deploy: two live checks of the Search Console v1 calls, the open `/mcp` without a token, and T3.1.2's criterion;
-  - 1 open question, below;
-  - 35 follow-ups.
-  
-  Fix, accept or drop each item.
-- **Open question (domain: decision, awaiting: user):** `src/quick-wins.ts:30` and `:41` use `row.position || 0`, so a row without a position counts as position 0, and the default minimum of 4 then filters it out. Intended, or a bug? The test `test/quick-wins-rounding.test.ts:26` is a todo until you answer.
+- **Diego's approval lines and console steps** (domain: decision, awaiting: user). `docs/audit/2026-11-14-rulings.md` rules all 45 residuals and the open question (fixed as T5.2.2). T5.2.1 and T3.5.6 tick only when Diego types his own line, for example `- 2026-11-16 — gsc T5.2.1 approved by Diego: rulings in docs/audit/2026-11-14-rulings.md`. Then section 4: new key (T3.5.2), property sharing, live check D4 (T4.2.6, T5.2.6).
 
 ## Notes carried forward
 - On seilaut-new, Claude Code's `google-search-console` MCP server (local scope) ran `node dist/index.js` from this folder, with `GOOGLE_APPLICATION_CREDENTIALS` pointing at `~/.openclaw/credentials/gsc-service-account.json`. That file was missing there.
@@ -110,8 +94,8 @@ Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decision
 - `env -u GOOGLE_APPLICATION_CREDENTIALS node dist/index.js 2>&1 | grep -q 'GOOGLE_APPLICATION_CREDENTIALS environment variable is required'` (T1.1.3)
 - `npm audit --omit=dev` (only zod expected until T3.5.4)
 
-## Last session — 464ce5ce (seilaut-master), 2026-11-10
-Only a correction: the T1.3.3 blocker line and the decisions sheet said a reinstall was still needed; the criterion passed on 2026-11-09 and again on 2026-11-10 (8ec6d6d). The 13 decisions in `docs/2026-11-09-decisions-for-diego.md` are still Diego's. Pushed to origin/work/2026-11-04 on Diego's word ("Push everything", 2026-11-10) after clean key-scan --push and gitleaks runs; not deployed.
+## Last session — 13bff084 (seilaut-master), 2026-11-14 to 2026-11-16
+Diego delegated all decisions except the Brevo key and answered the rest by pop-up and typed lines. Worker deleted from Cloudflare and the repo (T3.5.11, 2d8c547); T3.5.1 and T3.5.3 ticked, T3.5.9 and T3.5.10 dropped on his lines. An opus judge ruled every residual (`docs/audit/2026-11-14-rulings.md`); T5.2.2-T5.2.5 built by Sonnet in a worktree, reviewed, merged (f00512d) and ticked by `--run-ac` (aa9b504). Pushed to origin/work/2026-11-04 after clean key-scan and gitleaks. Next: Diego's key, sharing, live check and his two lines.
 
 ## History
 Older sessions → `HISTORY.md` (not auto-read). Entries are written by the SessionEnd hook; the agent fills Asked, Decided and Shipped.
