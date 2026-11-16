@@ -4,14 +4,14 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 96% · Δ +0 since 2026-11-16 · scope 99 tasks (+0) · hours 3.1 · cost $147.95 · plan @be5ab705
+Progress: 97% · Δ +1 since 2026-11-16 · scope 99 tasks (+0) · hours 3.1 · cost $147.95 · plan @f9994d14
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
 | I2 Test stage | 100 | 3/3 | complete | — |
-| I3 Security | 93 | 14/16 | in progress | E3.5 |
+| I3 Security | 97 | 15/16 | in progress | E3.5 |
 | I4 End product | 92 | 11/12 | in progress | E4.2 |
-| I5 Review follow-ups 2026-11-04 | 90 | 19/21 | in progress | E5.2 |
+| I5 Review follow-ups 2026-11-04 | 95 | 20/21 | in progress | E5.2 |
 Dropped epics (left out of the mean): E2.1, E3.2, E3.3
 <!-- progress:end -->
 Status 2026-11-16 (seilaut-master): branch `work/2026-11-04` pushed to GitHub at aa9b504. The Cloudflare Worker was deleted on 2026-11-14 (T3.5.11, 2d8c547), so only the local stdio server exists. Full `npm test` after the T5.2.2-T5.2.5 merge (f00512d, 2026-11-14): 144 tests, no failure.
@@ -20,12 +20,14 @@ Status 2026-11-16 (seilaut-master): branch `work/2026-11-04` pushed to GitHub at
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 5 (ready 0, queued 0, waiting 5) · verified this session: — · reopened: none · flat sessions: 0 · ledger @70
-Reasons: waiting on Diego (blocker): T3.5.2, T3.5.6, T4.2.6, T5.2.1, T5.2.6
+State: completely blocked · left: 3 (ready 0, queued 0, waiting 3) · verified this session: — · reopened: none · flat sessions: 0 · ledger @70
+Reasons: waiting on Diego (blocker): T3.5.2, T4.2.6, T5.2.6
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
 
 ## Decisions
+- 2026-11-16 — gsc T5.2.1 approved by Diego: rulings in docs/audit/2026-11-14-rulings.md
+- 2026-11-16 — gsc T3.5.6 approved by Diego: Dependabot alerts on, as turned on 2026-11-13
 - 2026-11-14 — gsc T3.5.1 approved by Diego: delete the Worker
 - 2026-11-14 — gsc T3.5.3 approved by Diego: all Search Console properties, read-only
 - 2026-11-14 — T3.5.9 drop accepted by Diego

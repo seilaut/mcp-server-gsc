@@ -283,3 +283,5 @@ ts	session	event	id	detail	model	evidence
 2026-11-16T10:31:02.808Z	13bff084-cb04-47c6-83fb-80b5ff2c73f3	rollup		pct=96;total=99;done=54		
 2026-11-16T10:32:02.336Z	local	rollup		pct=96;total=99;done=54		
 2026-11-16T10:32:02.372Z	local	direction		state=completely blocked		
+2026-11-16T10:49:16.547Z	local	rollup		pct=97;total=99;done=56		
+2026-11-16T10:49:16.583Z	local	direction		state=completely blocked		
