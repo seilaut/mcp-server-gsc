@@ -9,8 +9,8 @@ import { SearchConsoleService } from '../src/search-console.ts';
 type Factory = (options: { version?: string }) => unknown;
 const g = google as unknown as { searchconsole: Factory; webmasters: Factory };
 
-// Each entry is [method name, parsed arguments], or ['factory searchconsole' | 'factory webmasters', version]. Arguments are kept as objects
-// (deep-cloned through JSON so later mutation cannot change them) and compared with deepStrictEqual,
+// Each entry is [method name, parsed arguments], or ['factory searchconsole' | 'factory webmasters',
+// version]. Arguments are kept as objects (deep-cloned through JSON so later mutation cannot change them) and compared with deepStrictEqual,
 // so key order never matters.
 type Entry = [string, unknown];
 

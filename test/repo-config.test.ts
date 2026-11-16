@@ -2,19 +2,35 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { builtinModules } from 'node:module';
+import ts from 'typescript';
 
 const root = new URL('../', import.meta.url);
 const readJson = (name: string) => JSON.parse(readFileSync(new URL(name, root), 'utf8'));
 
-// Every module specifier a file imports or re-exports: `import x from 'a'`, multi-line
-// `import {\n a\n} from 'b'`, bare side-effect `import 'c'`, `export * from 'd'`, `export * as n from 'd'`
-// and `export { e } from 'f'`. Statements may be indented. Block and line comments are blanked first, so
-// commented-out imports are ignored. A line comment starts at `//` at the start of a line or after
-// whitespace, so a `://` inside a string is left alone. Lazy `[^'"]*?` spans newlines and stops at the first quote.
+// Every module specifier a file imports or re-exports, read from TypeScript's own syntax tree, so
+// nothing is guessed with regexes: static and multi-line imports, side-effect imports, `export ... from`,
+// `export * from`, `export * as n from`, `import x = require('y')`, and dynamic `import('z')` / `require('z')`
+// with a string literal. Commented-out code is not in the tree, and a comment opener inside a string,
+// template or line comment cannot hide a real import.
+// `ts.preProcessFile` was tried first and rejected: TypeScript 5.9.3 returns no specifier for
+// `export * as ns from 'x'`.
 function importSpecifiers(text: string): string[] {
-  const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '$1');
-  const re = /^[ \t]*(?:import\s+(?:[^'"]*?\s+from\s+)?|export\s+(?:type\s+)?(?:\*(?:\s+as\s+[\w$]+)?|\{[^}]*\})\s+from\s+)['"]([^'"]+)['"]/gm;
-  return [...code.matchAll(re)].map((m) => m[1]);
+  const found: string[] = [];
+  const visit = (node: ts.Node): void => {
+    if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier && ts.isStringLiteralLike(node.moduleSpecifier)) {
+      found.push(node.moduleSpecifier.text);
+    } else if (ts.isExternalModuleReference(node) && ts.isStringLiteralLike(node.expression)) {
+      found.push(node.expression.text);
+    } else if (ts.isCallExpression(node) && node.arguments.length > 0 && ts.isStringLiteralLike(node.arguments[0])) {
+      const callee = node.expression;
+      if (callee.kind === ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(callee) && callee.text === 'require')) {
+        found.push(node.arguments[0].text);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(ts.createSourceFile('scan.ts', text, ts.ScriptTarget.Latest, true));
+  return found;
 }
 
 test('importSpecifiers catches single-line, multi-line and side-effect imports', () => {
@@ -73,6 +89,31 @@ test('importSpecifiers ignores imports inside block and line comments', () => {
     `import real from 'real-pkg'; ${slashes} import d from 'trailing-comment';`,
   ].join('\n');
   assert.deepEqual(importSpecifiers(src), ['real-pkg']);
+});
+
+test('importSpecifiers is not fooled by a comment opener inside a string, template or line comment', () => {
+  const open = '/' + '*';
+  const close = '*' + '/';
+  const slashes = '/' + '/';
+  const glob = `**/${'*'}.ts`;
+  const cases: Array<[string, string[]]> = [
+    ['glob string', [`const g = '${glob}';`, "import a from 'after-glob';", `${open}* doc ${close}`]],
+    ['line comment', [`${slashes} see ${open} here`, "import b from 'after-line-comment';", `${open} later ${close}`]],
+    ['template literal', [`const t = \`${open} not a comment\`;`, "import c from 'after-template';", `${open} later ${close}`]],
+  ];
+  const expected: Record<string, string> = {
+    'glob string': 'after-glob',
+    'line comment': 'after-line-comment',
+    'template literal': 'after-template',
+  };
+  for (const [name, lines] of cases) {
+    assert.deepEqual(importSpecifiers(lines.join('\n')), [expected[name]], name);
+  }
+});
+
+test('importSpecifiers catches dynamic import() and ignores export without from', () => {
+  const src = ["const m = await import('dynamic-pkg');", 'export const x = 1;'].join('\n');
+  assert.deepEqual(importSpecifiers(src), ['dynamic-pkg']);
 });
 
 test('tests are type-checked: tsconfig.test.json includes test/ and src/', () => {
