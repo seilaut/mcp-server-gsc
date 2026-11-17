@@ -4,7 +4,7 @@
 
 ## Current position
 <!-- progress:begin -->
-Progress: 97% · Δ +1 since 2026-11-16 · scope 99 tasks (+0) · hours 3.1 · cost $147.95 · plan @f9994d14
+Progress: 97% · Δ +0 since 2026-11-16 · scope 99 tasks (+0) · hours 3.1 · cost $147.95 · plan @f9994d14
 | Initiative | % | Done/Total | State | Open epics |
 |---|---|---|---|---|
 | I1 Install, start and prove it | 100 | 7/7 | complete | — |
@@ -20,7 +20,7 @@ Status 2026-11-16 (seilaut-master): branch `work/2026-11-04` pushed to GitHub at
 
 ## Direction
 <!-- direction:begin -->
-State: completely blocked · left: 3 (ready 0, queued 0, waiting 3) · verified this session: — · reopened: none · flat sessions: 0 · ledger @70
+State: completely blocked · left: 3 (ready 0, queued 0, waiting 3) · verified this session: T3.4.1, T3.5.4, T3.5.5, T4.2.1, T5.1.7, T3.5.12, T4.2.2, T3.5.7, T5.1.8, T3.1.12, T3.5.8, T5.1.9, T5.1.10, T5.3.1, T3.1.2, T5.3.2, T5.3.3, T5.3.4, T3.1.14, T3.5.11, T3.5.1, T3.5.3, T5.2.2, T5.2.3, T5.2.4, T5.2.5, T5.2.7, T3.5.6, T5.2.1 · reopened: none · flat sessions: 0 · ledger @72
 Reasons: waiting on Diego (blocker): T3.5.2, T4.2.6, T5.2.6
 <!-- direction:end -->
 Rule: `delayed` (a loop or a stall): stop building. Write the loop into Decisions (what was tried, why it failed its criterion). Choose one: split the task, change the approach with a named hypothesis, or raise a blocker for Diego. No new attempt until that is written. `blocked`: work on what is ready. `completely blocked`: nothing here can move; tell Diego what each wait in Reasons needs.
